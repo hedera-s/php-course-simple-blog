@@ -1,2 +1,2 @@
 # learn_blog
-Learn Project
+Learn PHP Project
