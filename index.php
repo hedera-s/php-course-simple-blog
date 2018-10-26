@@ -15,9 +15,9 @@
 /**********************************************************************************************/	
 				
 				
-				/********************************/
-				/********* INCLUDES *************/
-				/********************************/
+				/*********************************/
+				/********** INCLUDES *************/
+				/*********************************/
 				
 				require_once("include/config.inc.php");
 				require_once("include/db.inc.php");
@@ -186,6 +186,27 @@ if(DEBUG)				echo "<p class='debug hint'>Line <b>" . __LINE__ . "</b>: Logout wi
 				
 				
 /**********************************************************************************************/	
+
+				/************************************************/
+				/******* Blogbeiträge aus DB auslesen  **********/
+				/************************************************/
+				
+				// 2. DB: SQL-Statement Vorbereiten
+			/*	$statement = $pdo->prepare("SELECT * FROM blogs
+											INNER JOIN users USING(usr_id)
+											INNER JOIN categories USING(cat_id)
+											WHERE usr_id = :ph_usr_id
+											");
+				
+				// 3DB. SQL-Statement ausführen und Platzhalter füllen
+				$statement->execute( array(
+								"ph_accountname" 	=> $accountname,
+								"ph_password" 		=> $passwordHash,
+								"ph_regHash" 		=> $regHash,
+								"ph_newUserId" 		=> $newUserId
+								)) OR DIE( "<p class='debug'>Line <b>" . __LINE__ . "</b>: " . $statement->errorInfo()[2] . " <i>(" . basename(__FILE__) . ")</i></p>" ); */
+
+/**********************************************************************************************/	
 ?>
 <!doctype html>
 
@@ -221,6 +242,8 @@ if(DEBUG)				echo "<p class='debug hint'>Line <b>" . __LINE__ . "</b>: Logout wi
 	
 		<h1>Blog über Essen</h1>
 		<h3>(und Trinken)</h3>
+		
+		
 
 
 </body>

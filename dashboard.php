@@ -52,11 +52,13 @@
 				/************************************************/
 				
 				
-				
-				
-				$categoryMessage = NULL;
-				$categoriesArray  = array();
-				
+				$categoryMessage 	= NULL;
+				$categoriesArray  	= array();
+				$errorHeadline 		= NULL;
+				$errorText 			= NULL;
+				$entryMessage 		= NULL;
+				$image 				= NULL;
+				$errorImageUpload	= NULL;
 				
 /**********************************************************************************************/
 				
@@ -107,7 +109,7 @@ if(DEBUG) 				echo "<p class='debug ok'>Line <b>" . __LINE__ . "</b>: Das Formul
 						if($categoryExists){
 							// Fehlerfall:
 if(DEBUG)					echo "<p class='debug err'>Line <b>" . __LINE__ . "</b>: Kategorie schon existiert <i>(" . basename(__FILE__) . ")</i></p>";
-							$categorieMessage = "<p class='error'>Die Kategorie <b>$newCategory</b> schon existiert";							
+							$categoryMessage = "<p class='error'>Die Kategorie <b>$newCategory</b> schon existiert";							
 							
 						}else{
 							// Erfolgsfall:
@@ -157,7 +159,7 @@ if(DEBUG)						echo "<p class='debug ok'>Line <b>" . __LINE__ . "</b>: Kategorie
 /**********************************************************************************************/
 
 				/************************************************/
-				/********** Kategorien füe Selectbox ************/
+				/********** Kategorien für Selectbox ************/
 				/**************	aus DB auslesen *****************/
 				/************************************************/
 				
@@ -176,6 +178,139 @@ if(DEBUG)						echo "<p class='debug ok'>Line <b>" . __LINE__ . "</b>: Kategorie
 				
 								
 								
+
+/**********************************************************************************************/
+
+
+				/************************************************/
+				/************ FORMULARVERARBEITUNG **************/
+				/************************************************/
+				
+				/************** für Blogformular  ***************/
+				
+				// 1. FORM: Prüfen, ob Formular abgeschickt wurde:
+				if(isset($_POST['formsentNewEntry'])){
+if(DEBUG)			echo "<p class='debug'>Line <b>" . __LINE__ . "</b>: Formular 'NewEntry' wurde abgeschickt. <i>(" . basename(__FILE__) . ")</i></p>";
+					
+					// 2. FORM: Auslesen, entschärfen
+					$category = cleanString($_POST['category']);
+					$headline = cleanString($_POST['headline']);
+					$imageAlignment = cleanString($_POST['imageAlignment']);
+					$content = cleanString($_POST['content']);
+					
+if(DEBUG)			echo "<p class='debug'>Line <b>" . __LINE__ . "</b>: category = $category <i>(" . basename(__FILE__) . ")</i></p>";
+if(DEBUG)			echo "<p class='debug'>Line <b>" . __LINE__ . "</b>: headline = $headline <i>(" . basename(__FILE__) . ")</i></p>";
+
+if(DEBUG)			echo "<p class='debug'>Line <b>" . __LINE__ . "</b>: imageAlignment = $imageAlignment <i>(" . basename(__FILE__) . ")</i></p>";
+if(DEBUG)			echo "<p class='debug'>Line <b>" . __LINE__ . "</b>: content = $content <i>(" . basename(__FILE__) . ")</i></p>";
+
+					//3. Validieren, abschließende Prüfung
+					
+					$errorHeadline = checkInputString($headline);
+					$errorText = checkInputString($content, 10, 10000); 
+					
+					if($errorHeadline || $errorText){
+						// Fehlerfall:
+if(DEBUG) 				echo "<p class='debug err'>Line <b>" . __LINE__ . "</b>: Das Formular enthält noch Fehler <i>(" . basename(__FILE__) . ")</i></p>";							
+							
+					}else{
+						// Efolgsfall:
+						
+						// Nur wenn Formularfelder fehlerfrei sind, soll der Bildupload durchgeführt werden,
+						// da ansonsten trotz Feld-Fehler im Formular das neue Bild auf dem Server gespeichert 
+						// und das alte Bild gelöscht wäre
+						
+						/***********************************************/
+						/**************** FILE UPLOAD ******************/
+						/***********************************************/
+
+						// Prüfen, ob eine Bilddatei hochgeladen wurde
+						if($_FILES['image']['tmp_name']){
+if(DEBUG) 						echo "<p class='debug hint'>Line <b>" . __LINE__ . "</b>: Bildupload aktiv...<i>(" . basename(__FILE__) . ")</i></p>";		
+							
+							$image = $_FILES['image'];
+							$imageUploadReturnArray = imageUpload($image);
+							
+							//Prüfen, ob es einen Bildupload Fehler gab
+							if($imageUploadReturnArray['imageError']){
+								
+								//Fehlerfall:
+if(DEBUG) 							echo "<p class='debug err'>Line <b>" . __LINE__ . "</b>: Fehler: $imageUploadReturnArray[imageError] <i>(" . basename(__FILE__) . ")</i></p>";	
+								$errorImageUpload = $imageUploadReturnArray['imageError'];
+								
+							}else{
+								//Erfolgsfall:
+if(DEBUG) 							echo "<p class='debug ok'>Line <b>" . __LINE__ . "</b>: Das Bild wird auf dem Server geladen <i>(" . basename(__FILE__) . ")</i></p>";										
+									
+								// Neuen Bildpfad speichern:
+								$image = $imageUploadReturnArray['imagePath'];
+if(DEBUG) 							echo "<p class='debug ok'>Line <b>" . __LINE__ . "</b>: image = $image <i>(" . basename(__FILE__) . ")</i></p>";	
+								
+								
+							}
+							
+						} 			//Ende Fileupload
+						/**********************************************/
+
+							
+						// Abschließende Formularprüfung TEIL 2:
+						
+						if(!$errorImageUpload){
+if(DEBUG) 					echo "<p class='debug ok'>Line <b>" . __LINE__ . "</b>: Das Formular ist fehlerfrei, die Daten können in DB geschrieben werden<i>(" . basename(__FILE__) . ")</i></p>";	
+							
+							/************** DB-Operation **************/
+													
+							
+							
+							// 2. DB: SQL-Statement vorbereiten:
+							$statement = $pdo->prepare("INSERT INTO blogs (	blog_headline, 
+																			blog_image, 
+																			blog_imageAlignment, 
+																			blog_content, 
+																			cat_id, 
+																			usr_id ) 
+																	VALUES (:ph_blog_headline,
+																			:ph_blog_image,
+																			:ph_blog_imageAlignment,
+																			:ph_blog_content,
+																			:ph_cat_id,
+																			:ph_usr_id )
+														");
+							
+							//	3. DB: SQL-Statement ausführen:
+							$statement->execute(array(
+														"ph_blog_headline" => $headline,
+														"ph_blog_image" => $image,
+														"ph_blog_imageAlignment" => $imageAlignment,
+														"ph_blog_content" => $content,
+														"ph_cat_id" => $category,
+														"ph_usr_id" => $_SESSION['usr_id']
+														) ) OR DIE( "<p class='debug'>Line <b>" . __LINE__ . "</b>: " . $statement->errorInfo()[2] . " <i>(" . basename(__FILE__) . ")</i></p>"); 
+							
+							// 4. DB: Daten weiterverarbeiten:
+							// Bei INSERT Last Insert-ID abholen und prüfen
+						
+							$newEntryId = $pdo->lastInsertId();
+if(DEBUG)					echo "<p class='debug'>Line <b>" . __LINE__ . "</b>: \$newEntryId: $newEntryId <i>(" . basename(__FILE__) . ")</i></p>";		
+							
+							
+							if(!$newEntryId){
+								// Fehlerfall:
+if(DEBUG)						echo "<p class='debug err'>Line <b>" . __LINE__ . "</b>: Fehler beim Speichern des neuen Eintrags <i>(" . basename(__FILE__) . ")</i></p>";
+								$entryMessage = "<p class='error'>Es ist ein Fehler aufgetreten, versuchen Sie es nochmal</p>";
+																
+							}else{
+								// Erfolgsfall:
+if(DEBUG)						echo "<p class='debug ok'>Line <b>" . __LINE__ . "</b>: Neuer Eintrag wurde mit der ID $newEntryId erfolgreich geschpeichert. <i>(" . basename(__FILE__) . ")</i></p>";
+								$entryMessage = "<p class='success'>Eintrag <b>\"$headline\"</b> wurde erfolgreich gescheichert.</p>";
+								
+							} // Prüfen, ob Eintrag gespeichert wurde - Ende
+							
+						} // Eintrag in DB speichern - Ende
+						
+					} // Fileupload - Ende
+				
+				} // Formularverarbeitung für Blogformular - Ende
 
 /**********************************************************************************************/
 
@@ -239,37 +374,42 @@ if(DEBUG)				echo "<p class='debug hint'>Line <b>" . __LINE__ . "</b>: Logout wi
 		
 		<p>Aktiver Benutzer: </p>
 		
-		<h3>Neuen Blog-Eintrag Verfassen</h3>
-		<form action="<?=$_SERVER['SCRIPT_NAME']?>" method="POST" enctype="multipart/form-data">
-			<input type="hidden" name="formsentNewEntry">
-			<select class="category" name="category">
-				<?php foreach($categoriesArray AS $categoryRow): ?>
-					<option value="<?=$categoryRow['cat_id']?>">	
-						<?=$categoryRow['cat_name']?>
-					</option>
-				<?php endforeach ?>
-			</select>
-			<br>
-			<input type="text" name="headline" placeholder="Überschrift"><br>
-			<input type="file" name="image">
-			<select class="imageAlignment" name="imageAlignment">
-				<option value="left">Align left</option>
-				<option value="right">Align right</option>
-			</select><br>
-			<textarea name="text" placeholder="Text..."></textarea>
-			<br>
-			<input type="submit" value="Veröffentlichen">
-		</form>
-		
-		<h3>Neue Kategorie anlegen</h3>
-		
-		<?=$categoryMessage?>
-		<form action="<?=$_SERVER['SCRIPT_NAME']?>" method="POST">
-			<input type="hidden" name="formsentNewCategory">
-			<input type="text" name="newCategory"><br>
-			<input type="submit" value="Kategorie anlegen">
-		</form>
-		
+		<div class="main">
+			<h3>Neuen Blog-Eintrag Verfassen</h3>
+			<?=$entryMessage?>
+			<form action="<?=$_SERVER['SCRIPT_NAME']?>" method="POST" enctype="multipart/form-data">
+				<input type="hidden" name="formsentNewEntry">
+				<select class="category" name="category">
+					<?php foreach($categoriesArray AS $categoryRow): ?>
+						<option value="<?=$categoryRow['cat_id']?>">	
+							<?=$categoryRow['cat_name']?>
+						</option>
+					<?php endforeach ?>
+				</select>
+				<br>
+				<span class="error"><?=$errorHeadline?></span><br>
+				<input type="text" name="headline" placeholder="Überschrift"> <br>
+				<input type="file" name="image">
+				<select class="imageAlignment" name="imageAlignment">
+					<option value="left">Align left</option>
+					<option value="right">Align right</option>
+				</select><br>
+				<span class="error"><?=$errorText?></span><br>
+				<textarea name="content" placeholder="Text..."></textarea>
+				<br>
+				<input type="submit" value="Veröffentlichen">
+			</form>
+		</div>
+		<div class="aside">
+			<h3>Neue Kategorie anlegen</h3>
+			
+			<?=$categoryMessage?>
+			<form action="<?=$_SERVER['SCRIPT_NAME']?>" method="POST">
+				<input type="hidden" name="formsentNewCategory">
+				<input type="text" name="newCategory"><br>
+				<input type="submit" value="Kategorie anlegen">
+			</form>
+		</div>
 		
 		
 		

@@ -1,4 +1,22 @@
+body {
+	font-family: helvetica;
+	color: #4d4d4d;
+	font-size: .9em;
+	line-height:1.5em;
+	max-width: 1000px;
+	margin: 0 auto;
+	padding: 20px;
+	}
+
 .error {
 	color: tomato;
 	
+}
+
+.aside {
+	float: right;
+}
+
+.main {
+	float:left;
 }

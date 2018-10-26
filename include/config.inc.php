@@ -29,7 +29,7 @@
 		define("IMAGE_ALLOWED_MIMETYPES", 	array("image/jpg", "image/jpeg", "image/gif", "image/png"));
 		
 		/********* STANDART PATHS CONFIGURATION ********/
-		define("AVATAR_DUMMY_PATH"		, 	"css/images/avatar_dummy.png");
+	
 		
 										
 		/***************** DEBUGGING *******************/
