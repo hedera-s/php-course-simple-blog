@@ -30,8 +30,17 @@
 				/*******************************************/
 
 				$loginMessage = NULL;
+				$categoryToShow = NULL;
+				$params = NULL;
+
 	
 /**********************************************************************************************/	
+				
+				/***** Datenbankverbindung herstellen: *****/
+						
+				$pdo = dbConnect();
+
+/**********************************************************************************************/
 
 				/********************************************************/
 				/******************* LOGIN-FORMULAR *********************/
@@ -66,9 +75,7 @@ if(DEBUG) 				echo "<p class='debug ok'>Line <b>" . __LINE__ . "</b>: Formular i
 						
 						/************* DATENBANKOPERATION ****************/
 											
-						//1 DB: Verbindung herstellen:
 						
-						$pdo = dbConnect();
 						
 						/****************** DATENSATZ ZUM EMAIL AUSLESEN *******************/
 						
@@ -179,32 +186,99 @@ if(DEBUG)				echo "<p class='debug hint'>Line <b>" . __LINE__ . "</b>: Logout wi
 						exit;
 										
 					}
+
+				
 				/***************** LOGOUT ENDE *******************/	
 				/*************************************************/
-				
+
+
+				/*************************************************/
+				/*********** URL-SchowCategory auslesen **********/
+				/*************************************************/
+
+					if($action == "showCategory"){
+if(DEBUG)				echo "<p class='debug hint'>Line <b>" . __LINE__ . "</b>: SchowCategory wird durchgeführt: action = $action'<i>(" . basename(__FILE__) . ")</i></p>";
+						if(isset($_GET['categoryToShow'])){
+if(DEBUG)					echo "<p class='debug hint'>Line <b>" . __LINE__ . "</b>: URL-Parameter 'categoryToShow' wurde übergeben<i>(" . basename(__FILE__) . ")</i></p>";
+							$categoryToShow = cleanString($_GET['categoryToShow']);
+if(DEBUG)					echo "<p class='debug'>Line <b>" . __LINE__ . "</b>: categoryToShow: $categoryToShow'<i>(" . basename(__FILE__) . ")</i></p>";
+							
+
+
+						}
+					}
 				}
 				
 				
 /**********************************************************************************************/	
+				/************************************************/
+				/******* Kategorienliste aus DB auslesen  *******/
+				/************************************************/
+				
+				// 2. DB: SQL-Statement Vorbereiten
+				$statement = $pdo->prepare("SELECT cat_name, cat_id FROM categories");
+				
+				// 3. DB: SQL-Statement ausführen und Platzhalter füllen
+				$statement->execute() OR DIE( "<p class='debug'>Line <b>" . __LINE__ . "</b>: " . $statement->errorInfo()[2] . " <i>(" . basename(__FILE__) . ")</i></p>" ); 
+
+				// 4 DB:  Daten weiterverarbeiten
+				// Bei SELECT: Datensätze auslesen
+				// fetchAll liefert zweidimensionales Array zurück, 
+				// das ALLE Datensätze beinhaltet
+				
+				while($row = $statement->fetch(PDO::FETCH_ASSOC)){
+					$categoriesArray[$row['cat_id']] = $row['cat_name'];
+				}
+
+				
 
 				/************************************************/
 				/******* Blogbeiträge aus DB auslesen  **********/
 				/************************************************/
-				
-				// 2. DB: SQL-Statement Vorbereiten
-			/*	$statement = $pdo->prepare("SELECT * FROM blogs
+				$sql = "SELECT * FROM blogs
 											INNER JOIN users USING(usr_id)
 											INNER JOIN categories USING(cat_id)
-											WHERE usr_id = :ph_usr_id
-											");
+											";
+
+				if($categoryToShow){
+if(DEBUG)			echo "<p class='debug'>Line <b>" . __LINE__ . "</b>: categoryToShow wurde übergeben: $categoryToShow'<i>(" . basename(__FILE__) . ")</i></p>";		
+					$statement = $pdo->prepare("SELECT * FROM categories WHERE cat_id = :ph_cat_id");
+					$statement->execute( array("ph_cat_id" => $categoryToShow)
+										) OR DIE( "<p class='debug'>Line <b>" . __LINE__ . "</b>: " . $statement->errorInfo()[2] . " <i>(" . basename(__FILE__) . ")</i></p>" );
+					$categoryExists = $statement->fetchColumn();
+					
+					if(!$categoryExists){
+						// Fehlerfall:
+if(DEBUG)				echo "<p class='debug err'>Line <b>" . __LINE__ . "</b>: Kategorie existiert in DB nicht <i>(" . basename(__FILE__) . ")</i></p>";	
+													
+					} else {
+						// Erfolgsfall:
+if(DEBUG)				echo "<p class='debug ok'>Line <b>" . __LINE__ . "</b>: Kategorie existiert in DB<i>(" . basename(__FILE__) . ")</i></p>";	
+						
+						$sql .= " WHERE cat_id = :ph_cat_id"; 
+						$params = array("ph_cat_id" => $categoryToShow);							
+
+					}
+				}
+
+				// 2. DB: SQL-Statement Vorbereiten
+				$statement = $pdo->prepare($sql);
 				
-				// 3DB. SQL-Statement ausführen und Platzhalter füllen
-				$statement->execute( array(
-								"ph_accountname" 	=> $accountname,
-								"ph_password" 		=> $passwordHash,
-								"ph_regHash" 		=> $regHash,
-								"ph_newUserId" 		=> $newUserId
-								)) OR DIE( "<p class='debug'>Line <b>" . __LINE__ . "</b>: " . $statement->errorInfo()[2] . " <i>(" . basename(__FILE__) . ")</i></p>" ); */
+				// 3. DB: SQL-Statement ausführen und Platzhalter füllen
+				$statement->execute($params) OR DIE( "<p class='debug'>Line <b>" . __LINE__ . "</b>: " . $statement->errorInfo()[2] . " <i>(" . basename(__FILE__) . ")</i></p>" ); 
+
+				// 4 DB:  Daten weiterverarbeiten
+				// Bei SELECT: Datensätze auslesen
+				// fetchAll liefert zweidimensionales Array zurück, 
+				// das ALLE Datensätze beinhaltet
+				
+				$entriesArray = $statement->fetchAll(PDO::FETCH_ASSOC);
+
+
+
+
+
+
 
 /**********************************************************************************************/	
 ?>
@@ -237,14 +311,56 @@ if(DEBUG)				echo "<p class='debug hint'>Line <b>" . __LINE__ . "</b>: Logout wi
 					<input type="submit" value="Anmelden">
 				</form>
 			<?php endif ?>
+
 		
 		</header>
-	
-		<h1>Blog über Essen</h1>
-		<h3>(und Trinken)</h3>
-		
-		
+		<div class="wrapper">
+			<h1>Blog über Essen</h1>
+			<h3>(und Trinken)</h3>
+			
+			<main class="">
+				<!--
+					$entriesArray enthält ein zweidimensionales Array. Jedes darin 
+					enthaltene Array entspricht einem Datensatz aus der DB.
+					Je Schleifendurchlauf enthält $dataset einen anderen Datensatz in Form 
+					eines eindimensionalen Arrays, dessen Indizes den Namen der Spalten in 
+					der Tabelle 'products' entsprechen.
+				-->
+				<?php foreach ($entriesArray AS $entry): ?>
+					<article>
+						<div>
+							<ul class="category-list">
+								<li><?=$entry['cat_name']?></li>
+								<li><?=$entry['cat_name']?></li>
+							</ul>
+						</div>
+						<p><?=$entry['usr_firstname']?> <?=$entry['usr_lastname']?> aus <?=$entry['usr_city']?> shrieb am <?=$entry['blog_date']?>:</p>
+						<h3><?=$entry['blog_headline']?></h3>
+						<?php if($entry['blog_image']): ?>
+							<img src="<?=$entry['blog_image']?>" class="<?=$entry['blog_imageAlignment']?>" />
+						<?php endif ?>
+						<p><?=$entry['blog_content']?></p>
+						<div class="clear"></div>
 
+					</article>
+					<br>
+				<?php endforeach ?>
+			</main>
+
+			<aside>
+				<p class="categories-header">Kategorien:</p>
+				<ul>
+					<li><a href="<?=$_SERVER['SCRIPT_NAME']?>">Alle Kategorien</a></li><br>
+					<?php foreach ($categoriesArray AS $key=>$value): ?>
+						<li><a href="?action=showCategory&categoryToShow=<?=$key?>"><?=$value?></a></li>
+					<?php endforeach ?>
+				</ul>
+			</aside>
+			<div class="clear"></div>
+		</div>
+		<footer>
+			Copyright
+		</footer>
 
 </body>
 

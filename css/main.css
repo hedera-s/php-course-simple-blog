@@ -1,9 +1,22 @@
-body {
+body{
+	margin: 0;
+	background-image: url('images/toa-heftiba-513812-unsplash.jpg');
+	 height: 500px;
+	 width: 100%;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  position: relative;
+  background-attachment: fixed;
+	background-color: lightgrey;
+}
+
+.wrapper {
 	font-family: helvetica;
 	color: #4d4d4d;
 	font-size: .9em;
 	line-height:1.5em;
-	max-width: 1000px;
+	max-width: 900px;
 	margin: 0 auto;
 	padding: 20px;
 	}
@@ -13,10 +26,77 @@ body {
 	
 }
 
-.aside {
+header, footer{
+
+	background: tomato;
+	width: 100%;
+	margin: 0;
+	padding: 0;
+}
+ul{
+	margin: 0;
+	padding: 0;
+}
+
+aside {
+	float: right;
+	width: 28%;
+}
+
+aside ul li{
+	display: inline-block;
+    vertical-align: middle;
+    background-color: #d7d7d7;
+    line-height: 20px;
+    margin: 5px 2px 0 0;
+    max-width: 555px;
+    padding: 7px 10px 5px 10px;
+    word-wrap: break-word;
+}
+
+main {
+	float:left;
+	width: 70%;
+}
+
+article{
+	background-color: white;
+	padding: 20px;
+}
+
+.category-list {
+   
+    margin: 0;
+    padding: 0;
+}
+
+.category-list li{
+    display: inline-block;
+    vertical-align: middle;
+    background-color: #d7d7d7;
+    line-height: 20px;
+    margin: 0;
+    max-width: 555px;
+    padding: 7px 10px 5px 10px;
+    word-wrap: break-word;
+}
+
+.clear{
+	clear: both;
+}
+
+img{
+	width: 200px;
+}
+
+img.right{
 	float: right;
 }
 
-.main {
-	float:left;
+img.left{
+	float: left;
+}
+
+p{
+
 }
