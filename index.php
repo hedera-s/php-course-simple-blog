@@ -285,26 +285,27 @@ if(DEBUG)				echo "<p class='debug ok'>Line <b>" . __LINE__ . "</b>: Kategorie e
 <!doctype html>
 
 <html>
-
-	<head>
+<head>
 		<meta charset="utf-8">
 		<title>Blog über Essen</title>
 		<link rel="stylesheet" type="text/css" href="css/main.css">
 		<link rel="stylesheet" type="text/css" href="css/debug.css">
+		<link href="https://fonts.googleapis.com/css?family=Dancing+Script|Roboto:300" rel="stylesheet">
 	</head>
 
 	<body>
 		<header>
-			
 			<?php if(isset($_SESSION['usr_id'])):?>
-				<p>Hallo, <?=$_SESSION['usr_firstname']?>!  |  <a href="?action=logout">Logout</a></p>
-				<p><a href="dashboard.php">Zum Dashboard >></a></p>
+				<div class="hello">	
+					<p>Hallo, <?=$_SESSION['usr_firstname']?>!  |  <a href="?action=logout">Logout</a></p>
+					<p><a href="dashboard.php">Zum Dashboard >></a></p>
+				</div>
 			<?php endif?>
 			
 			
 			<span class="error"><?=$loginMessage?></span>
 			<?php if(!isset($_SESSION['usr_id'])):?>
-				<form action="<?=$_SERVER['SCRIPT_NAME']?>" method="POST">
+				<form action="<?=$_SERVER['SCRIPT_NAME']?>" method="POST" class="login">
 					<input type="hidden" name="formsentLogin">
 					<input type="text" name="email" placeholder="Email">
 					<input type="password" name="password" placeholder="Passwort">
@@ -315,10 +316,13 @@ if(DEBUG)				echo "<p class='debug ok'>Line <b>" . __LINE__ . "</b>: Kategorie e
 		
 		</header>
 		<div class="wrapper">
-			<h1>Blog über Essen</h1>
-			<h3>(und Trinken)</h3>
+			
 			
 			<main class="">
+				<div class="blog-headline">
+					<h1>Blog über Essen</h1>
+					<h2>(und Trinken)</h2>
+				</div>
 				<!--
 					$entriesArray enthält ein zweidimensionales Array. Jedes darin 
 					enthaltene Array entspricht einem Datensatz aus der DB.
@@ -328,18 +332,17 @@ if(DEBUG)				echo "<p class='debug ok'>Line <b>" . __LINE__ . "</b>: Kategorie e
 				-->
 				<?php foreach ($entriesArray AS $entry): ?>
 					<article>
-						<div>
+						
 							<ul class="category-list">
 								<li><?=$entry['cat_name']?></li>
-								<li><?=$entry['cat_name']?></li>
 							</ul>
-						</div>
-						<p><?=$entry['usr_firstname']?> <?=$entry['usr_lastname']?> aus <?=$entry['usr_city']?> shrieb am <?=$entry['blog_date']?>:</p>
-						<h3><?=$entry['blog_headline']?></h3>
+						
+						<p class="whowrote"><?=$entry['usr_firstname']?> <?=$entry['usr_lastname']?> aus <?=$entry['usr_city']?> shrieb am <?=$entry['blog_date']?>:</p>
+						<h3 class="headline"><?=$entry['blog_headline']?></h3>
 						<?php if($entry['blog_image']): ?>
-							<img src="<?=$entry['blog_image']?>" class="<?=$entry['blog_imageAlignment']?>" />
+							<img src="<?=$entry['blog_image']?>" class="<?=$entry['blog_imageAlignment']?> article-image" />
 						<?php endif ?>
-						<p><?=$entry['blog_content']?></p>
+						<p class="content"><?=$entry['blog_content']?></p>
 						<div class="clear"></div>
 
 					</article>
@@ -359,7 +362,7 @@ if(DEBUG)				echo "<p class='debug ok'>Line <b>" . __LINE__ . "</b>: Kategorie e
 			<div class="clear"></div>
 		</div>
 		<footer>
-			Copyright
+			<p>Copyright Irina Serdiuk</p>
 		</footer>
 
 </body>

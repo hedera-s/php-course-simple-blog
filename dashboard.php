@@ -363,18 +363,25 @@ if(DEBUG)				echo "<p class='debug hint'>Line <b>" . __LINE__ . "</b>: Logout wi
 		<title>Blog über Essen - Dashboard</title>
 		<link rel="stylesheet" type="text/css" href="css/main.css">
 		<link rel="stylesheet" type="text/css" href="css/debug.css">
+		<link href="https://fonts.googleapis.com/css?family=Dancing+Script|Roboto:300" rel="stylesheet">
 	</head>
 
 	<body>
 		<header>
-			<p>Hallo, <?=$_SESSION['usr_firstname']?>!  |  <a href="?action=logout">Logout</a></p>
-			<p><a href="index.php"><< Zum Frontend</a></p>
+			<div class="hello">	
+				<p>Hallo, <?=$_SESSION['usr_firstname']?>!  |  <a href="?action=logout">Logout</a></p>
+				<p><a href="index.php"><< Zum Frontend</a></p>
+			</div>
 		</header>
-		<h1>Blog über Essen - Dashboard</h1>
+		<br>
+		<div class="blog-headline">
+			<h1>Blog über Essen - Dashboard</h1>
+			
+		</div>
 		
-		<p>Aktiver Benutzer: </p>
 		
-		<div class="main">
+		
+		<main class="new-entry">
 			<h3>Neuen Blog-Eintrag Verfassen</h3>
 			<?=$entryMessage?>
 			<form action="<?=$_SERVER['SCRIPT_NAME']?>" method="POST" enctype="multipart/form-data">
@@ -388,8 +395,8 @@ if(DEBUG)				echo "<p class='debug hint'>Line <b>" . __LINE__ . "</b>: Logout wi
 				</select>
 				<br>
 				<span class="error"><?=$errorHeadline?></span><br>
-				<input type="text" name="headline" placeholder="Überschrift"> <br>
-				<input type="file" name="image">
+				<input type="text" name="headline" placeholder="Überschrift" class="headline"> <br><br>
+				<input type="file" name="image" class="file">
 				<select class="imageAlignment" name="imageAlignment">
 					<option value="left">Align left</option>
 					<option value="right">Align right</option>
@@ -397,21 +404,24 @@ if(DEBUG)				echo "<p class='debug hint'>Line <b>" . __LINE__ . "</b>: Logout wi
 				<span class="error"><?=$errorText?></span><br>
 				<textarea name="content" placeholder="Text..."></textarea>
 				<br>
-				<input type="submit" value="Veröffentlichen">
+				<input type="submit" value="Veröffentlichen" class="button">
 			</form>
-		</div>
-		<div class="aside">
+		</main>
+
+		<aside class="new-category">
 			<h3>Neue Kategorie anlegen</h3>
 			
-			<?=$categoryMessage?>
+			<?=$categoryMessage?><br>
 			<form action="<?=$_SERVER['SCRIPT_NAME']?>" method="POST">
 				<input type="hidden" name="formsentNewCategory">
 				<input type="text" name="newCategory"><br>
-				<input type="submit" value="Kategorie anlegen">
+				<input type="submit" value="Kategorie anlegen" class="button">
 			</form>
-		</div>
+		</aside><br>
 		
-		
+		<footer class="clear">
+			<p>Copyright Irina Serdiuk</p>
+		</footer>		
 		
 
 

@@ -33,9 +33,9 @@
 		
 										
 		/***************** DEBUGGING *******************/
-		define("DEBUG"		, 	true);
-		define("DEBUG_F"	, 	true);
-		define("DEBUG_DB"	, 	true);
+		define("DEBUG"		, 	false);
+		define("DEBUG_F"	, 	false);
+		define("DEBUG_DB"	, 	false);
 		
 	
 		

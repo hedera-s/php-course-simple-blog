@@ -1,52 +1,134 @@
-body{
+*{
 	margin: 0;
-	background-image: url('images/toa-heftiba-513812-unsplash.jpg');
-	 height: 500px;
-	 width: 100%;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: cover;
-  position: relative;
-  background-attachment: fixed;
-	background-color: lightgrey;
+	padding: 0;
+	box-sizing: border-box;
 }
-
-.wrapper {
-	font-family: helvetica;
-	color: #4d4d4d;
-	font-size: .9em;
-	line-height:1.5em;
-	max-width: 900px;
-	margin: 0 auto;
-	padding: 20px;
-	}
 
 .error {
 	color: tomato;
 	
 }
 
-header, footer{
+body{
+	margin: 0;
+	background-image: url('images/toa-heftiba-513812-unsplash.jpg');
+	height: 500px;
+	width: 100%;
+	background-position: center;
+	background-repeat: no-repeat;
+	background-size: cover;
+	position: relative;
+	background-attachment: fixed;
+	background-color: lightgrey;
+	font-family: 'Roboto', sans-serif;
+	color: #4d4d4d;
+	font-size: .9em;
+	line-height:1.5em;
 
+}
+
+a{
+	color: yellow;
+}
+
+header, footer{
+	height: 70px;
 	background: tomato;
 	width: 100%;
-	margin: 0;
-	padding: 0;
+	color: #fff;
+
 }
-ul{
-	margin: 0;
-	padding: 0;
+
+form.login{
+	float: right;
+	padding: 20px;
+}
+
+.login input{
+	line-height: 25px;
+	border: 1px solid grey;
+}
+
+.login input[type="submit"]{
+	width: 100px;
+}
+
+.hello{
+	float: right;
+	padding: 13px 30px;
+}
+
+
+
+.wrapper {
+	max-width: 900px;
+	margin: 0 auto;
+	padding: 20px;
+	}
+
+
+h1, h2 {
+	color: #fff;
+	text-align: center;
+	text-shadow: 1px 1px 2px black, 0 0 25px grey, 0 0 5px darkgrey;
+	padding:5px;
+}
+
+h1{
+	font-family: 'Dancing Script', cursive;
+	font-size: 4em;
+}
+
+h2{
+	margin-left: 150px;
+	padding-top: 12px
+}
+
+h3{
+	font-family: 'Dancing Script', cursive;
+	font-size: 2em;
+}
+
+.blog-headline{
+	padding: 20px;
+	text-align: center;
+}
+
+
+h3.headline{
+	color: tomato;
+	padding: 10px;
+}
+
+
+
+.content{
+	
+}
+
+.article-image{
+
+	padding: 17px;
+}
+
+p.categories-header{
+	font-size: 2em;
+	color: #fff;
+	margin-top: 90px;
+	padding: 20px 0;
+	text-shadow: 1px 1px 2px black, 0 0 25px grey, 0 0 5px darkgrey;
 }
 
 aside {
 	float: right;
 	width: 28%;
+	margin-bottom: 10px;
 }
 
 aside ul li{
 	display: inline-block;
     vertical-align: middle;
-    background-color: #d7d7d7;
+    background-color: tomato;
     line-height: 20px;
     margin: 5px 2px 0 0;
     max-width: 555px;
@@ -59,15 +141,73 @@ main {
 	width: 70%;
 }
 
-article{
+article, .new-entry, .new-category{
 	background-color: white;
 	padding: 20px;
 }
 
-.category-list {
-   
-    margin: 0;
-    padding: 0;
+.new-entry, .new-category{
+	margin-top: 20px;
+	height: 490px;
+
+}
+
+.new-entry{
+	width: 58%;
+	margin-left: 30px;
+}
+
+.new-category{
+	width: 35%;
+	margin-right: 30px;
+}
+
+.new-entry h3, .new-category h3{
+	padding: 20px;
+	text-align: center;
+}
+
+form{
+	text-align: center;
+}
+select.category, input.headline{
+	width: 400px;
+	height: 30px;
+}
+
+input.file{
+	width: 300px;
+}
+
+select.imageAlignment{
+	width:100px;
+}
+
+textarea{
+	width: 400px;
+	height: 200px;
+}
+
+input.button{
+	width: 200px;
+	height: 30px;
+}
+
+.new-category input{
+	width: 200px;
+	height: 30px;
+	margin-bottom: 7px;
+}
+
+ul.category-list {
+   float: right;
+    
+}
+
+p.whowrote {
+	font-size: .8em;
+	color: #c2c2a3;
+	font-style: italic;
 }
 
 .category-list li{
@@ -79,6 +219,10 @@ article{
     max-width: 555px;
     padding: 7px 10px 5px 10px;
     word-wrap: break-word;
+}
+
+.category-list a{
+	color: #fff;
 }
 
 .clear{
@@ -97,6 +241,7 @@ img.left{
 	float: left;
 }
 
-p{
-
+footer p{
+	line-height: 70px;
+	padding-left: 30px;
 }
