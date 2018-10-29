@@ -12,7 +12,7 @@
 body{
 	margin: 0;
 	background-image: url('images/toa-heftiba-513812-unsplash.jpg');
-	height: 500px;
+
 	width: 100%;
 	background-position: center;
 	background-repeat: no-repeat;
@@ -64,7 +64,12 @@ form.login{
 	max-width: 900px;
 	margin: 0 auto;
 	padding: 20px;
+	
 	}
+	
+.wrapper, .wrapper-dashboard{
+		min-height: calc(100vh - 100px);
+}
 
 
 h1, h2 {
@@ -101,11 +106,6 @@ h3.headline{
 }
 
 
-
-.content{
-	
-}
-
 .article-image{
 
 	padding: 17px;
@@ -141,10 +141,62 @@ main {
 	width: 70%;
 }
 
+
 article, .new-entry, .new-category{
 	background-color: white;
 	padding: 20px;
 }
+
+
+ul.category-list {
+   float: right;
+    
+}
+
+p.whowrote {
+	font-size: .8em;
+	color: #c2c2a3;
+	font-style: italic;
+}
+
+.category-list li{
+    display: inline-block;
+    vertical-align: middle;
+    background-color: #d7d7d7;
+    line-height: 20px;
+    margin: 0;
+    max-width: 555px;
+    padding: 7px 10px 5px 10px;
+    word-wrap: break-word;
+}
+
+.category-list a{
+	color: #fff;
+}
+
+.clear{
+	clear: both;
+}
+
+img{
+	width: 260px;
+}
+
+img.right{
+	float: right;
+}
+
+img.left{
+	float: left;
+}
+
+footer p{
+	line-height: 70px;
+	padding-left: 30px;
+}
+
+/******************* Dashboard.php ****************/
+
 
 .new-entry, .new-category{
 	margin-top: 20px;
@@ -199,49 +251,52 @@ input.button{
 	margin-bottom: 7px;
 }
 
-ul.category-list {
-   float: right;
-    
+
+
+/**************************************************/
+/******* Style für Bilschirme kleiner 900px *******/
+/**************************************************/
+
+@media only screen and (max-width: 900px) {
+	
+		.new-entry, .new-category{
+		width: 90%;
+		margin: 0 auto;
+		float: none;
+	}
+	
+	.new-entry{
+		height: 500px;
+	}
+
+	.new-category{
+		margin-top: 20px;
+		height: 220px;
+	}
+
+	select.category, input.headline{
+		width: 95%;
+	}
+
+	input.file{
+		width: 200px;
+	}
+
+	textarea{
+		width: 95%;
+	}
+
+
+	.new-category input{
+		width: 95%;
+		
+	}
+
+	input[type="submit"]{
+		width: 200px;
+	}
+
+
 }
 
-p.whowrote {
-	font-size: .8em;
-	color: #c2c2a3;
-	font-style: italic;
-}
 
-.category-list li{
-    display: inline-block;
-    vertical-align: middle;
-    background-color: #d7d7d7;
-    line-height: 20px;
-    margin: 0;
-    max-width: 555px;
-    padding: 7px 10px 5px 10px;
-    word-wrap: break-word;
-}
-
-.category-list a{
-	color: #fff;
-}
-
-.clear{
-	clear: both;
-}
-
-img{
-	width: 200px;
-}
-
-img.right{
-	float: right;
-}
-
-img.left{
-	float: left;
-}
-
-footer p{
-	line-height: 70px;
-	padding-left: 30px;
-}

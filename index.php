@@ -1,8 +1,9 @@
 <?php
 /**********************************************************************************************/
-				/***********************************************/
-				/************* Session fortführen **************/
-				/***********************************************/
+
+				/********************************************************/
+				/****************** Session fortführen ******************/
+				/********************************************************/
 				
 				// session_start() legt eine neue Session an, ODER führt eine bestehende Session fort
 				// session_start() holt sich das Session-Cookie vom Browser und vergleicht, ob es eine 
@@ -14,29 +15,35 @@
 	
 /**********************************************************************************************/	
 				
-				
-				/*********************************/
-				/********** INCLUDES *************/
-				/*********************************/
+				/********************************************************/
+				/*********************** INCLUDES ***********************/
+				/********************************************************/
 				
 				require_once("include/config.inc.php");
 				require_once("include/db.inc.php");
 				require_once("include/form.inc.php");
+				require_once("include/datetime.inc.php");
 					
 					
 /**********************************************************************************************/
-				/*******************************************/
-				/******** VARIABLEN INITIALIZIEREN *********/
-				/*******************************************/
 
-				$loginMessage = NULL;
-				$categoryToShow = NULL;
-				$params = NULL;
+				/********************************************************/
+				/************** VARIABLEN INITIALIZIEREN ****************/
+				/********************************************************/
+
+				$loginMessage 		= NULL;
+				$categoryToShow 	= NULL;
+				$params 			= array();
+				$categoriesArray 	= array();
+				$date 				= NULL;
+				$time 				= NULL;
 
 	
 /**********************************************************************************************/	
-				
-				/***** Datenbankverbindung herstellen: *****/
+
+				/********************************************************/
+				/*********** Datenbankverbindung herstellen: ************/
+				/********************************************************/
 						
 				$pdo = dbConnect();
 
@@ -53,31 +60,34 @@
 if(DEBUG)			echo "<p class='debug'>Line <b>" . __LINE__ . "</b>: Formular 'formsentLogin' wurde abgeschickt. <i>(" . basename(__FILE__) . ")</i></p>";	
 				
 					// 2 FORM: Werte auslesen, entshärfen
-					$email = cleanString($_POST['email']);
-					$password = cleanString($_POST['password']);
+					$email 		= cleanString($_POST['email']);
+					$password 	= cleanString($_POST['password']);
 if(DEBUG)			echo "<p class='debug'>Line <b>" . __LINE__ . "</b>: email: $email<i>(" . basename(__FILE__) . ")</i></p>";								
 if(DEBUG)			echo "<p class='debug'>Line <b>" . __LINE__ . "</b>: password: $password<i>(" . basename(__FILE__) . ")</i></p>";		
 					
 					// 3 FORM: Werte Validierung
-					$errorEmail = checkEmail($email);
-					$errorPasswort = checkInputString($password);
+					$errorEmail 	= checkEmail($email);
+					$errorPasswort 	= checkInputString($password);
 					
 					// Abschließende Formularprüfung
 					if($errorEmail || $errorPasswort){
-						//Fehler
+						//Fehlerfall:
 if(DEBUG)				echo "<p class='debug err'>Line <b>" . __LINE__ . "</b>: Logindaten sind ungültig<i>(" . basename(__FILE__) . ")</i></p>";		
 						$loginMessage = "Benutzername oder Passwort falsch!";
+					
 					} else {
-						//Erfolg
+						//Erfolgsfall:
 if(DEBUG) 				echo "<p class='debug ok'>Line <b>" . __LINE__ . "</b>: Formular ist korrekt ausgefüllt. Daten werden nun verarbeitet... <i>(" . basename(__FILE__) . ")</i></p>";		
-						
+
 						// 4 FORM: Daten weiterverarbeiten
 						
-						/************* DATENBANKOPERATION ****************/
+						/********************************************************/
+						/********************* DB-OPERATION *********************/
+						/********************************************************/
 											
 						
 						
-						/****************** DATENSATZ ZUM EMAIL AUSLESEN *******************/
+						/********** DATENSATZ ZUM EMAIL AUS DB AUSLESEN *********/
 						
 						//2 DB: SQL-Statement vorbereiten:
 						$statement = $pdo->prepare("SELECT usr_email, usr_password, usr_id, usr_firstname 
@@ -94,7 +104,8 @@ if(DEBUG) 				echo "<p class='debug ok'>Line <b>" . __LINE__ . "</b>: Formular i
 						$row = $statement->fetch(PDO::FETCH_ASSOC);
 						
 						
-						/********** EMAIL PRÜFEN **********/
+						
+						/********************* EMAIL PRÜFEN **********************/
 
 						// Prüfen, ob ein Datensatz geliefert wurde
 						// Wenn Datensatz geliefert wurde, muss die Email-Adresse stimmen
@@ -107,11 +118,9 @@ if(DEBUG) 					echo "<p class='debug err'>Line <b>" . __LINE__ . "</b>: FEHLER: 
 						}else{
 							// Erfolgsfall:
 if(DEBUG) 					echo "<p class='debug ok'>Line <b>" . __LINE__ . "</b>: User mit Email $email wurde in der DB gefunden. <i>(" . basename(__FILE__) . ")</i></p>";	
-if(DEBUG) 					echo "<pre class='debug'>";
-if(DEBUG) 					print_r($row);
-if(DEBUG) 					echo "</pre>";
+
 							
-							/**************** PASSWORT PRÜFEN ****************/
+							/******************* PASSWORT PRÜFEN *******************/
 							
 							if(!password_verify($password, $row['usr_password'])){
 								// Fehlerfall: PW wurde nicht gefunden
@@ -123,16 +132,16 @@ if(DEBUG) 						echo "<p class='debug err'>Line <b>" . __LINE__ . "</b>: FEHLER:
 if(DEBUG) 						echo "<p class='debug ok'>Line <b>" . __LINE__ . "</b>: Passwort stimmt mit Passwort aus DB überein <i>(" . basename(__FILE__) . ")</i></p>";									
 								
 								
-								/********************************************/
-								/******** Session starten und Daten *********/
-								/*********** in Session schreiben ***********/
-								/********************************************/
+								/****************************************************/
+								/************ Session starten und Daten *************/
+								/*************** in Session schreiben ***************/
+								/****************************************************/
 								
 								session_name("blog");
 								session_start();
 								
-								$_SESSION['usr_id'] = $row['usr_id'];
-								$_SESSION['usr_firstname'] = $row['usr_firstname'];
+								$_SESSION['usr_id'] 		= $row['usr_id'];
+								$_SESSION['usr_firstname'] 	= $row['usr_firstname'];
 																
 								
 if(DEBUG)						echo "<pre class='debug'>";
@@ -156,21 +165,21 @@ if(DEBUG)						echo "</pre>";
 				
 /**********************************************************************************************/	
 				
-				/************************************************/
-				/********* URL-Parameterverarbeitung ************/
-				/************************************************/
+				/********************************************************/
+				/************** URL-Parameterverarbeitung ***************/
+				/********************************************************/
 				
 				//1 URL: Prüfen, ob Parameter übergeben wurde:
 				if(isset($_GET['action'])){
 if(DEBUG)			echo "<p class='debug hint'>Line <b>" . __LINE__ . "</b>: URL-Parameter 'action' wurde übergeben<i>(" . basename(__FILE__) . ")</i></p>";
 	
-					//2 URL: Auslesen, entschärfen
+					//2 URL: Auslesen, entschärfen:
 					$action = cleanString($_GET['action']);
 if(DEBUG)			echo "<p class='debug'>Line <b>" . __LINE__ . "</b>: action: $action'<i>(" . basename(__FILE__) . ")</i></p>";
 					
 					
-				/*************************************************/
-				/***************** LOGOUT ************************/
+					/********************************************************/
+					/********************** LOGOUT **************************/
 				
 					// 3 URL: Verzweigen
 					if($action == "logout"){
@@ -188,16 +197,18 @@ if(DEBUG)				echo "<p class='debug hint'>Line <b>" . __LINE__ . "</b>: Logout wi
 					}
 
 				
-				/***************** LOGOUT ENDE *******************/	
-				/*************************************************/
+					/********************* LOGOUT ENDE **********************/	
+					/********************************************************/
 
 
-				/*************************************************/
-				/*********** URL-SchowCategory auslesen **********/
-				/*************************************************/
+					/********************************************************/
+					/************** URL-SchowCategory auslesen **************/
+					/********************************************************/
 
 					if($action == "showCategory"){
 if(DEBUG)				echo "<p class='debug hint'>Line <b>" . __LINE__ . "</b>: SchowCategory wird durchgeführt: action = $action'<i>(" . basename(__FILE__) . ")</i></p>";
+						
+						// Prüfen, ob und welche Kategorie ausgewählt/übergeben wurde:
 						if(isset($_GET['categoryToShow'])){
 if(DEBUG)					echo "<p class='debug hint'>Line <b>" . __LINE__ . "</b>: URL-Parameter 'categoryToShow' wurde übergeben<i>(" . basename(__FILE__) . ")</i></p>";
 							$categoryToShow = cleanString($_GET['categoryToShow']);
@@ -205,24 +216,26 @@ if(DEBUG)					echo "<p class='debug'>Line <b>" . __LINE__ . "</b>: categoryToSho
 							
 
 
-						}
-					}
-				}
+						} // Prüfen, welche Kategorie ausgewählt wurde - Ende
+						
+					} // URL-SchowCategory auslesen - Ende
+					
+				} // URL-Parameterverarbeitung - Ende 
 				
 				
 /**********************************************************************************************/	
-				/************************************************/
-				/******* Kategorienliste aus DB auslesen  *******/
-				/************************************************/
+
+				/********************************************************/
+				/*********** Kategorienliste aus DB auslesen  ***********/
+				/********************************************************/
 				
 				// 2. DB: SQL-Statement Vorbereiten
-				$statement = $pdo->prepare("SELECT cat_name, cat_id FROM categories");
+				$statement = $pdo->prepare("SELECT cat_name, cat_id FROM categories ORDER BY cat_name");
 				
 				// 3. DB: SQL-Statement ausführen und Platzhalter füllen
 				$statement->execute() OR DIE( "<p class='debug'>Line <b>" . __LINE__ . "</b>: " . $statement->errorInfo()[2] . " <i>(" . basename(__FILE__) . ")</i></p>" ); 
 
 				// 4 DB:  Daten weiterverarbeiten
-				// Bei SELECT: Datensätze auslesen
 				// fetchAll liefert zweidimensionales Array zurück, 
 				// das ALLE Datensätze beinhaltet
 				
@@ -232,14 +245,16 @@ if(DEBUG)					echo "<p class='debug'>Line <b>" . __LINE__ . "</b>: categoryToSho
 
 				
 
-				/************************************************/
-				/******* Blogbeiträge aus DB auslesen  **********/
-				/************************************************/
-				$sql = "SELECT * FROM blogs
-											INNER JOIN users USING(usr_id)
-											INNER JOIN categories USING(cat_id)
-											";
-
+				/********************************************************/
+				/*********** Blogbeiträge aus DB auslesen  **************/
+				/********************************************************/
+				$sql = "SELECT * FROM blogs 
+						INNER JOIN users USING(usr_id)
+						INNER JOIN categories USING(cat_id)
+						";
+						
+				// Wenn eine bestimmte Kategorie ausgewählt wurde, prüfen, ob sie existiert:
+				
 				if($categoryToShow){
 if(DEBUG)			echo "<p class='debug'>Line <b>" . __LINE__ . "</b>: categoryToShow wurde übergeben: $categoryToShow'<i>(" . basename(__FILE__) . ")</i></p>";		
 					$statement = $pdo->prepare("SELECT * FROM categories WHERE cat_id = :ph_cat_id");
@@ -248,18 +263,22 @@ if(DEBUG)			echo "<p class='debug'>Line <b>" . __LINE__ . "</b>: categoryToShow 
 					$categoryExists = $statement->fetchColumn();
 					
 					if(!$categoryExists){
-						// Fehlerfall:
+						// Fehlerfall: Kategorie existiert in DB nicht
 if(DEBUG)				echo "<p class='debug err'>Line <b>" . __LINE__ . "</b>: Kategorie existiert in DB nicht <i>(" . basename(__FILE__) . ")</i></p>";	
 													
 					} else {
-						// Erfolgsfall:
+						// Erfolgsfall: Kategorie existiert in DB
 if(DEBUG)				echo "<p class='debug ok'>Line <b>" . __LINE__ . "</b>: Kategorie existiert in DB<i>(" . basename(__FILE__) . ")</i></p>";	
 						
 						$sql .= " WHERE cat_id = :ph_cat_id"; 
 						$params = array("ph_cat_id" => $categoryToShow);							
 
-					}
-				}
+					} // Prüfen, ob kategorie existiert - Ende
+					
+				} // Versuch Kategorienumber aus DB auszulesen - Ende
+				
+				
+				$sql .= " ORDER BY blog_id DESC"; // Neuste Beiträge oben anzeigen
 
 				// 2. DB: SQL-Statement Vorbereiten
 				$statement = $pdo->prepare($sql);
@@ -268,7 +287,6 @@ if(DEBUG)				echo "<p class='debug ok'>Line <b>" . __LINE__ . "</b>: Kategorie e
 				$statement->execute($params) OR DIE( "<p class='debug'>Line <b>" . __LINE__ . "</b>: " . $statement->errorInfo()[2] . " <i>(" . basename(__FILE__) . ")</i></p>" ); 
 
 				// 4 DB:  Daten weiterverarbeiten
-				// Bei SELECT: Datensätze auslesen
 				// fetchAll liefert zweidimensionales Array zurück, 
 				// das ALLE Datensätze beinhaltet
 				
@@ -285,8 +303,9 @@ if(DEBUG)				echo "<p class='debug ok'>Line <b>" . __LINE__ . "</b>: Kategorie e
 <!doctype html>
 
 <html>
-<head>
+	<head>
 		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<title>Blog über Essen</title>
 		<link rel="stylesheet" type="text/css" href="css/main.css">
 		<link rel="stylesheet" type="text/css" href="css/debug.css">
@@ -295,6 +314,9 @@ if(DEBUG)				echo "<p class='debug ok'>Line <b>" . __LINE__ . "</b>: Kategorie e
 
 	<body>
 		<header>
+		
+			<!------- Begrüßung und Logout-Link --------->
+			
 			<?php if(isset($_SESSION['usr_id'])):?>
 				<div class="hello">	
 					<p>Hallo, <?=$_SESSION['usr_firstname']?>!  |  <a href="?action=logout">Logout</a></p>
@@ -302,6 +324,8 @@ if(DEBUG)				echo "<p class='debug ok'>Line <b>" . __LINE__ . "</b>: Kategorie e
 				</div>
 			<?php endif?>
 			
+			
+			<!--------------- Login-Form ----------------->
 			
 			<span class="error"><?=$loginMessage?></span>
 			<?php if(!isset($_SESSION['usr_id'])):?>
@@ -315,9 +339,9 @@ if(DEBUG)				echo "<p class='debug ok'>Line <b>" . __LINE__ . "</b>: Kategorie e
 
 		
 		</header>
+		
 		<div class="wrapper">
-			
-			
+		
 			<main class="">
 				<div class="blog-headline">
 					<h1>Blog über Essen</h1>
@@ -326,9 +350,9 @@ if(DEBUG)				echo "<p class='debug ok'>Line <b>" . __LINE__ . "</b>: Kategorie e
 				<!--
 					$entriesArray enthält ein zweidimensionales Array. Jedes darin 
 					enthaltene Array entspricht einem Datensatz aus der DB.
-					Je Schleifendurchlauf enthält $dataset einen anderen Datensatz in Form 
+					Je Schleifendurchlauf enthält $entry einen anderen Datensatz in Form 
 					eines eindimensionalen Arrays, dessen Indizes den Namen der Spalten in 
-					der Tabelle 'products' entsprechen.
+					der Tabellen entsprechen.
 				-->
 				<?php foreach ($entriesArray AS $entry): ?>
 					<article>
@@ -337,19 +361,33 @@ if(DEBUG)				echo "<p class='debug ok'>Line <b>" . __LINE__ . "</b>: Kategorie e
 								<li><?=$entry['cat_name']?></li>
 							</ul>
 						
-						<p class="whowrote"><?=$entry['usr_firstname']?> <?=$entry['usr_lastname']?> aus <?=$entry['usr_city']?> shrieb am <?=$entry['blog_date']?>:</p>
+						<?php 
+							// Convertierung in EU Datum und Zeit
+							$date = isoToEuDateTime($entry['blog_date'])['date']; 
+							$time = isoToEuDateTime($entry['blog_date'])['time']; 
+						?>
+						
+						<p class="whowrote">
+							<?=$entry['usr_firstname']?> <?=$entry['usr_lastname']?> 
+							aus <?=$entry['usr_city']?> schrieb am <?=$date?> um <?=$time?>:
+						</p>
 						<h3 class="headline"><?=$entry['blog_headline']?></h3>
 						<?php if($entry['blog_image']): ?>
 							<img src="<?=$entry['blog_image']?>" class="<?=$entry['blog_imageAlignment']?> article-image" />
 						<?php endif ?>
+						<?php $entry['blog_content'] = str_replace("\r\n", "<br>", $entry['blog_content']) ?>
 						<p class="content"><?=$entry['blog_content']?></p>
 						<div class="clear"></div>
 
 					</article>
+					
 					<br>
 				<?php endforeach ?>
 			</main>
-
+			
+			
+			<!--------------- Kategorienliste ----------------->
+			
 			<aside>
 				<p class="categories-header">Kategorien:</p>
 				<ul>
@@ -359,12 +397,14 @@ if(DEBUG)				echo "<p class='debug ok'>Line <b>" . __LINE__ . "</b>: Kategorie e
 					<?php endforeach ?>
 				</ul>
 			</aside>
+			
+			
 			<div class="clear"></div>
 		</div>
 		<footer>
 			<p>Copyright Irina Serdiuk</p>
 		</footer>
 
-</body>
+	</body>
 
 </html>
