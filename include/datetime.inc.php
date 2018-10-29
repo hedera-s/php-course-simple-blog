@@ -1,6 +1,16 @@
 <?php
 /****************************************************************************/
-		
+			/**
+			*
+			* Konvertiert iso-Datum-Zeit in EU-Standart Datum/ Zeit
+			*
+			* @param 	String 	$datetime 	Das zu konvertierende Datum/Zeit   in Format YYYY-MM-DD hh:mm:ss 
+			* 
+			* @return 	Array				Array mit Zwei werte: Das EU-Datum und die EU-Zeit
+			*
+			*/
+
+	
 			function isoToEuDateTime($dateTime){
 if(DEBUG_F) 	echo "<p class='debug'><b>Line " . __LINE__ . ":</b> Aufruf " . __FUNCTION__ . "($dateTime) <i>(" . basename(__FILE__) . ")</i></p>";				
 			
@@ -13,9 +23,9 @@ if(DEBUG_F) 	echo "<p class='debug'><b>Line " . __LINE__ . ":</b> Aufruf " . __F
 				//17.05.2018
 				
 				// Datum ausschneiden und umformatieren
-				$year = substr($dateTime, 0, 4);
-				$month = substr($dateTime, 5, 2);
-				$day = substr($dateTime, 8, 2);
+				$year 	= substr($dateTime, 0, 4);
+				$month 	= substr($dateTime, 5, 2);
+				$day 	= substr($dateTime, 8, 2);
 				
 				$euDate = "$day.$month.$year";
 				

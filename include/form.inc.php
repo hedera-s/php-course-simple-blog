@@ -104,9 +104,9 @@ if(DEBUG_F) 	echo "<p class='debugCheckEmail'><b>Line " . __LINE__ . "</b>: Aufr
 			* 
 			* 
 			* @param 	Array 	$uploadedImage		Die Bildinformationen aus $_FILES
-			* @param	[ Int	$maxWidth ]			Die Maximalerlaubte Bildbreite in px
-			* @param	[ Int	$maxHeight ]		Die Maximalerlaubte Bildhöhe in px
-			* @param	[ Int	$maxSize ]			Die Maximalerlaubte Bildgröße in Byte
+			* @param	[ Int	$maxWidth 	]		Die Maximalerlaubte Bildbreite in px
+			* @param	[ Int	$maxHeight 	]		Die Maximalerlaubte Bildhöhe in px
+			* @param	[ Int	$maxSize 	]		Die Maximalerlaubte Bildgröße in Byte
 			* @param	[String	$uploadPath ]		Das speicherverzeichnis auf dem Server
 			* @param	[Array	$allowedMimeTypes ]	Whitelist der erlaubten MIME-Types
 			*
@@ -179,9 +179,9 @@ if(DEBUG_F)		echo "<pre class='debugImageUpload'>";
 if(DEBUG_F)		print_r($imageData);								
 if(DEBUG_F)		echo "</pre>";			
 				
-				$imageWidth = $imageData[0];
-				$imageHeight = $imageData[1];
-				$imageMimeType = $imageData['mime'];
+				$imageWidth 	= $imageData[0];
+				$imageHeight 	= $imageData[1];
+				$imageMimeType 	= $imageData['mime'];
 				
 if(DEBUG_F) 	echo "<p class='debugImageUpload'><b>Line " . __LINE__ . "</b>: imageWidth: $imageWidth px <i>(" . basename(__FILE__) . ")</i></p>";
 if(DEBUG_F) 	echo "<p class='debugImageUpload'><b>Line " . __LINE__ . "</b>: imageHeight: $imageHeight px<i>(" . basename(__FILE__) . ")</i></p>";
@@ -195,23 +195,23 @@ if(DEBUG_F) 	echo "<p class='debugImageUpload'><b>Line " . __LINE__ . "</b>: ima
 				//$allowedMimeTypes = array("image/jpg", "image/jpeg", "image/gif", "image/png");
 				
 				if(!in_array($imageMimeType, $allowedMimeTypes)){
-					$errorMessage = "Dies ist kein gültiger Bildtyp!";
+					$errorMessage 	= "Dies ist kein gültiger Bildtyp!";
 					
 				//Maximal erlaubte Bildbreite:
 				} elseif($imageWidth > $maxWidth) {
-					$errorMessage = "Die Bildbreite darf maximal $maxWidth Pixel betragen!";
+					$errorMessage 	= "Die Bildbreite darf maximal $maxWidth Pixel betragen!";
 					
 				//Maximal erlaubte Bildhöhe:
 				} elseif($imageHeight > $maxHeight) {
-					$errorMessage = "Die Bildhöhe darf maximal $maxHeight Pixel betragen!";
+					$errorMessage 	= "Die Bildhöhe darf maximal $maxHeight Pixel betragen!";
 					
 				//Maximal erlaubte Bildsize:	
 				}elseif($fileSize > $maxSize){
-						$errorMessage = "Die Dateigröße darf maximal ". round($maxSize/1024,2) ." KB betragen!";
+					$errorMessage 	= "Die Dateigröße darf maximal ". round($maxSize/1024,2) ." KB betragen!";
 						
 				//Wen es keine Fehler gab:
 				}else{
-					$errorMessage = NULL;
+					$errorMessage 	= NULL;
 				}
 				
 				//Abschließende Bildprüfung
