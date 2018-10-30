@@ -52,16 +52,19 @@
 				/**************** VARIABLEN INITIALIZIEREN **************/
 				/********************************************************/
 				
-				
-				$categoryMessage 	= NULL;
 				$categoriesArray  	= array();
-				$errorHeadline 		= NULL;
-				$errorText 			= NULL;
+				
+				
 				$entryMessage 		= NULL;
-				$image 				= NULL;
+				$categoryMessage 	= NULL;
+				$errorHeadline 		= NULL;
 				$errorImageUpload	= NULL;
+				$errorText 			= NULL;
+				
+				$image 				= NULL;
 				$headline 			= NULL;
 				$content			= NULL;
+				$newCategory		= NULL;
 				
 /**********************************************************************************************/
 				
@@ -72,15 +75,11 @@
 				/*************** für Kategorienformular *****************/
 				
 				
-				// 1. FORM: Prüfen, ob Formular abgeschickt wurde:
+				// Prüfen, ob Formular abgeschickt wurde:
 				if(isset($_POST['formsentNewCategory'])){
 if(DEBUG)			echo "<p class='debug'>Line <b>" . __LINE__ . "</b>: Formular 'newCategory' wurde abgeschickt. <i>(" . basename(__FILE__) . ")</i></p>";
-					
-					// 2. FORM: Auslesen, entschärfen
 					$newCategory = cleanString($_POST['newCategory']);
 if(DEBUG)			echo "<p class='debug'>Line <b>" . __LINE__ . "</b>: newCategory = $newCategory <i>(" . basename(__FILE__) . ")</i></p>";
-
-					//3. Validieren, abschließende Prüfung
 					$errorNewCategory = checkInputString($newCategory, 3);
 					
 					// Abschließende Prüfung:
@@ -101,16 +100,12 @@ if(DEBUG) 				echo "<p class='debug ok'>Line <b>" . __LINE__ . "</b>: Das Formul
 						
 						/******************** DB-OPERATION **********************/
 						
-						// 2DB. SQL-Statement vorbereiten
+						
 						$statement = $pdo->prepare("SELECT COUNT(cat_name) FROM categories
 														WHERE cat_name = :ph_cat_name");
-														
-						// 3DB. SQL-Statement ausführen und Platzhalter füllen
 						$statement->execute( array(
 													"ph_cat_name" => $newCategory
 													)) OR DIE( "<p class='debug'>Line <b>" . __LINE__ . "</b>: " . $statement->errorInfo()[2] . " <i>(" . basename(__FILE__) . ")</i></p>" );
-						
-						// 4DB. Daten weiterverarbeiten
 						$categoryExists = $statement->fetchColumn();
 						
 						
@@ -128,18 +123,14 @@ if(DEBUG)					echo "<p class='debug ok'>Line <b>" . __LINE__ . "</b>: Kategorie 
 
 if(DEBUG)					echo "<p class='debug ok'>Line <b>" . __LINE__ . "</b>: Kategorie $newCategory wird in DB gescrieben...<i>(" . basename(__FILE__) . ")</i></p>";	
 						
-							// 2. DB: SQL-Statement vorbereiten
 							$statement = $pdo->prepare("INSERT INTO categories (cat_name)
 																	VALUES (:ph_cat_name)
 														");
-													
-							// 3. DB: SQL-Statement ausführen
 							$statement->execute(array("ph_cat_name"=>$newCategory) ) OR DIE( "<p class='debug'>Line <b>" . __LINE__ . "</b>: " . $statement->errorInfo()[2] . " <i>(" . basename(__FILE__) . ")</i></p>"); 
-						
-						
-							// 4. DB: Datenweiterverarbeiten
-							// Bei INSERT Last Insert-ID abholen und prüfen
-						
+				
+				
+							// Last Insert-ID abholen und prüfen:
+							
 							$newCategoryId = $pdo->lastInsertId();
 if(DEBUG)					echo "<p class='debug'>Line <b>" . __LINE__ . "</b>: \$newCategoryId: $newCategoryId <i>(" . basename(__FILE__) . ")</i></p>";		
 							
@@ -153,6 +144,7 @@ if(DEBUG)						echo "<p class='debug err'>Line <b>" . __LINE__ . "</b>: Fehler b
 								// Erfolgsfall:
 if(DEBUG)						echo "<p class='debug ok'>Line <b>" . __LINE__ . "</b>: Kategorie $newCategory wurde mit der ID $newCategoryId erfolgreich geschpeichert. <i>(" . basename(__FILE__) . ")</i></p>";
 								$categoryMessage = "<p class='success'>Kategorie <b>$newCategory</b> wurde erfolgreich geschpeichert.</p>";
+								$newCategory = NULL;
 								
 							} // Prüfen, ob Kategorie gespeichert ist - Ende
 							
@@ -171,24 +163,17 @@ if(DEBUG)						echo "<p class='debug ok'>Line <b>" . __LINE__ . "</b>: Kategorie
 				/******************	aus DB auslesen *********************/
 				/********************************************************/
 				
-				//2. DB: SQL-Statement Vorbereiten
+				
 				$statement = $pdo->prepare("SELECT * FROM categories ORDER by cat_name
 											");
-				//3. DB: Statement ausführen
 				$statement->execute() OR DIE( "<p class='debug'>Line <b>" . __LINE__ . "</b>: " . $statement->errorInfo()[2] . " <i>(" . basename(__FILE__) . ")</i></p>"); 
 
-				//4. DB: Weiterverarbeiten
 				// $categoriesArray enthält ein zweidimensionales Array. Jedes darin 
 				// enthaltene Array entspricht einem Datensatz aus der DB
 					
 				$categoriesArray = $statement->fetchAll(PDO::FETCH_ASSOC);
 				
-								
-								
 
-
-								
-								
 
 /**********************************************************************************************/
 
@@ -197,12 +182,11 @@ if(DEBUG)						echo "<p class='debug ok'>Line <b>" . __LINE__ . "</b>: Kategorie
 				/********************************************************/
 				
 				/***************** für Blogformular  ********************/
+				/*************** Neuen Eintag verfassen *****************/
 				
-				// 1. FORM: Prüfen, ob Formular abgeschickt wurde:
 				if(isset($_POST['formsentNewEntry'])){
 if(DEBUG)			echo "<p class='debug'>Line <b>" . __LINE__ . "</b>: Formular 'NewEntry' wurde abgeschickt. <i>(" . basename(__FILE__) . ")</i></p>";
 					
-					// 2. FORM: Auslesen, entschärfen
 					$category 		= cleanString($_POST['category']);
 					$headline 		= cleanString($_POST['headline']);
 					$imageAlignment = cleanString($_POST['imageAlignment']);
@@ -212,8 +196,6 @@ if(DEBUG)			echo "<p class='debug'>Line <b>" . __LINE__ . "</b>: category = $cat
 if(DEBUG)			echo "<p class='debug'>Line <b>" . __LINE__ . "</b>: headline = $headline <i>(" . basename(__FILE__) . ")</i></p>";
 if(DEBUG)			echo "<p class='debug'>Line <b>" . __LINE__ . "</b>: imageAlignment = $imageAlignment <i>(" . basename(__FILE__) . ")</i></p>";
 if(DEBUG)			echo "<p class='debug'>Line <b>" . __LINE__ . "</b>: content = $content <i>(" . basename(__FILE__) . ")</i></p>";
-
-					//3. Validieren, abschließende Prüfung
 					
 					$errorHeadline 	= checkInputString($headline);
 					$errorText 		= checkInputString($content, 10, 10000); 
@@ -240,19 +222,20 @@ if(DEBUG) 					echo "<p class='debug hint'>Line <b>" . __LINE__ . "</b>: Bildupl
 							$image 					= $_FILES['image'];
 							$imageUploadReturnArray = imageUpload($image);
 							
-							//Prüfen, ob es einen Bildupload Fehler gab
+							//Prüfen, ob es einen Bildupload-Fehler gab:
 							if($imageUploadReturnArray['imageError']){
 								//Fehlerfall:
 if(DEBUG) 						echo "<p class='debug err'>Line <b>" . __LINE__ . "</b>: Fehler: $imageUploadReturnArray[imageError] <i>(" . basename(__FILE__) . ")</i></p>";	
 								$errorImageUpload = $imageUploadReturnArray['imageError'];
-								
+							
 							}else{
 								//Erfolgsfall:
 if(DEBUG) 						echo "<p class='debug ok'>Line <b>" . __LINE__ . "</b>: Das Bild wird auf dem Server geladen <i>(" . basename(__FILE__) . ")</i></p>";										
 									
 								// Neuen Bildpfad speichern:
 								$image = $imageUploadReturnArray['imagePath'];
-if(DEBUG) 							echo "<p class='debug ok'>Line <b>" . __LINE__ . "</b>: image = $image <i>(" . basename(__FILE__) . ")</i></p>";	
+								
+if(DEBUG) 						echo "<p class='debug ok'>Line <b>" . __LINE__ . "</b>: image = $image <i>(" . basename(__FILE__) . ")</i></p>";	
 								
 								
 							}
@@ -263,7 +246,7 @@ if(DEBUG) 							echo "<p class='debug ok'>Line <b>" . __LINE__ . "</b>: image =
 						/********************************************************/
 
 							
-						// Abschließende Formularprüfung TEIL 2:
+						// Abschließende Formularprüfung:
 						
 						if(!$errorImageUpload){
 							
@@ -272,7 +255,6 @@ if(DEBUG) 					echo "<p class='debug ok'>Line <b>" . __LINE__ . "</b>: Das Formu
 							
 							/******************* DB-Operation ********************/
 							
-							// 2. DB: SQL-Statement vorbereiten:
 							$statement = $pdo->prepare("INSERT INTO blogs (	blog_headline, 
 																			blog_image, 
 																			blog_imageAlignment, 
@@ -287,7 +269,6 @@ if(DEBUG) 					echo "<p class='debug ok'>Line <b>" . __LINE__ . "</b>: Das Formu
 																			:ph_usr_id )
 														");
 							
-							//	3. DB: SQL-Statement ausführen:
 							$statement->execute(array(
 													"ph_blog_headline" 		=> $headline,
 													"ph_blog_image" 		=> $image,
@@ -297,13 +278,12 @@ if(DEBUG) 					echo "<p class='debug ok'>Line <b>" . __LINE__ . "</b>: Das Formu
 													"ph_usr_id" 			=> $_SESSION['usr_id']
 														) ) OR DIE( "<p class='debug'>Line <b>" . __LINE__ . "</b>: " . $statement->errorInfo()[2] . " <i>(" . basename(__FILE__) . ")</i></p>"); 
 							
-							// 4. DB: Daten weiterverarbeiten:
-							// Bei INSERT Last Insert-ID abholen und prüfen
+							// Last Insert-ID abholen und prüfen
 						
 							$newEntryId = $pdo->lastInsertId();
 if(DEBUG)					echo "<p class='debug'>Line <b>" . __LINE__ . "</b>: \$newEntryId: $newEntryId <i>(" . basename(__FILE__) . ")</i></p>";		
 							
-							//// Prüfen, ob Eintrag gespeichert wurde:
+							// Prüfen, ob der Eintrag gespeichert wurde:
 							if(!$newEntryId){
 								// Fehlerfall:
 if(DEBUG)						echo "<p class='debug err'>Line <b>" . __LINE__ . "</b>: Fehler beim Speichern des neuen Eintrags <i>(" . basename(__FILE__) . ")</i></p>";
@@ -314,6 +294,13 @@ if(DEBUG)						echo "<p class='debug err'>Line <b>" . __LINE__ . "</b>: Fehler b
 if(DEBUG)						echo "<p class='debug ok'>Line <b>" . __LINE__ . "</b>: Neuer Eintrag wurde mit der ID $newEntryId erfolgreich geschpeichert. <i>(" . basename(__FILE__) . ")</i></p>";
 								$entryMessage = "<p class='success'>Eintrag <b>\"$headline\"</b> wurde erfolgreich gescheichert.</p>";
 								
+								// Felder leeren:
+								$category 		= NULL;
+								$headline 		= NULL;
+								$image 			= NULL;
+								$imageAlignment = NULL;
+								$content 		= NULL;
+								
 							} // Prüfen, ob Eintrag gespeichert wurde - Ende
 							
 						} // Eintrag in DB speichern - Ende
@@ -321,6 +308,33 @@ if(DEBUG)						echo "<p class='debug ok'>Line <b>" . __LINE__ . "</b>: Neuer Ein
 					} // Fileupload - Ende
 				
 				} // Formularverarbeitung für Blogformular - Ende
+				
+				
+				
+				
+
+/**********************************************************************************************/
+				/*************** Ein Eintag redaktieren *****************/
+				
+			
+				// Nur wenn ein Editmodus eingeschaltet ist:
+				if($_SESSION['edit']){
+if(DEBUG)			echo "<p class='debug'>Line <b>" . __LINE__ . "</b>: Die Session läuft mit Flag 'edit'. <i>(" . basename(__FILE__) . ")</i></p>";					
+					$category 		= $_SESSION['cat_id'];
+					$headline 		= $_SESSION['blog_headline'];
+					$image 			= $_SESSION['blog_image'];
+					$imageAlignment = $_SESSION['blog_imageAlignment'];
+					$content 		= $_SESSION['blog_content'];
+					
+					
+if(DEBUG)			echo "<p class='debug'>Line <b>" . __LINE__ . "</b>: category = $category <i>(" . basename(__FILE__) . ")</i></p>";
+if(DEBUG)			echo "<p class='debug'>Line <b>" . __LINE__ . "</b>: headline = $headline <i>(" . basename(__FILE__) . ")</i></p>";
+if(DEBUG)			echo "<p class='debug'>Line <b>" . __LINE__ . "</b>: image = $image <i>(" . basename(__FILE__) . ")</i></p>";
+if(DEBUG)			echo "<p class='debug'>Line <b>" . __LINE__ . "</b>: imageAlignment = $imageAlignment <i>(" . basename(__FILE__) . ")</i></p>";
+if(DEBUG)			echo "<p class='debug'>Line <b>" . __LINE__ . "</b>: content = $content <i>(" . basename(__FILE__) . ")</i></p>";
+					
+					
+				}
 
 /**********************************************************************************************/
 
@@ -328,11 +342,9 @@ if(DEBUG)						echo "<p class='debug ok'>Line <b>" . __LINE__ . "</b>: Neuer Ein
 				/************** URL-Parameterverarbeitung ***************/
 				/********************************************************/
 				
-				//1 URL: Prüfen, ob Parameter übergeben wurde:
 				if(isset($_GET['action'])){
 if(DEBUG)			echo "<p class='debug hint'>Line <b>" . __LINE__ . "</b>: URL-Paranmeter 'action' wurde übergeben<i>(" . basename(__FILE__) . ")</i></p>";
 	
-					//2 URL: Auslesen, entschärfen
 					$action = cleanString($_GET['action']);
 if(DEBUG)			echo "<p class='debug'>Line <b>" . __LINE__ . "</b>: action: $action'<i>(" . basename(__FILE__) . ")</i></p>";
 					
@@ -340,11 +352,8 @@ if(DEBUG)			echo "<p class='debug'>Line <b>" . __LINE__ . "</b>: action: $action
 				/********************************************************/
 				/******************** LOGOUT ****************************/
 				
-					// 3 URL: Verzweigen
 					if($action == "logout"){
 if(DEBUG)				echo "<p class='debug hint'>Line <b>" . __LINE__ . "</b>: Logout wird durchgeführt: action = $action'<i>(" . basename(__FILE__) . ")</i></p>";	
-						
-						//4 URL: Daten weiterverarbeiten
 						
 						// Session löschen:
 						session_destroy();
@@ -378,6 +387,9 @@ if(DEBUG)				echo "<p class='debug hint'>Line <b>" . __LINE__ . "</b>: Logout wi
 	<body>
 		<header>
 			<div class="hello">	
+			
+				<!------- Begrüßung und Logout-Link --------->
+			
 				<p>Hallo, <?=$_SESSION['usr_firstname']?>!  |  <a href="?action=logout">Logout</a></p>
 				<p><a href="index.php"><< Zum Frontend</a></p>
 			</div>
@@ -386,10 +398,12 @@ if(DEBUG)				echo "<p class='debug hint'>Line <b>" . __LINE__ . "</b>: Logout wi
 		<div class="wrapper-dashboard">
 			<div class="blog-headline">
 				<h1>Blog über Essen - Dashboard</h1>
+				<h2>Aktiver Benutzer: <?=$_SESSION['usr_firstname']?> <?=$_SESSION['usr_lastname']?></h2>
 			</div>
 			
 			
-			<!-- Formular Neuer Eintrag -->
+			<!------------- Formular Neuer Eintrag ---------->
+			
 			<main class="new-entry">
 				<h3>Neuen Blog-Eintrag Verfassen</h3>
 				
@@ -411,21 +425,37 @@ if(DEBUG)				echo "<p class='debug hint'>Line <b>" . __LINE__ . "</b>: Logout wi
 					</select>
 					<br>
 					<span class="error"><?=$errorHeadline?></span><br>
-					<input type="text" name="headline" placeholder="Überschrift" class="headline" value="<?=$headline?>"> <br><br>
-					<input type="file" name="image" class="file" value="<?=$image?>">
+					<input type="text" name="headline" placeholder="Überschrift" class="headline" value="<?=$headline?>"> <br>
+					
+					<span class="error"><?=$errorImageUpload?></span>
+					<br>
+					<input type="file" name="image" class="file">
 					<select class="imageAlignment" name="imageAlignment">
-						<?php 
-							if($imageAlignment == "right"){
-								echo "<option value='left'>Align left</option>";
-								echo "<option value='right' selected>Align right</option>";
-							} else {
-								echo "<option value='left' selected>Align left</option>";
-								echo "<option value='right'>Align right</option>";	
-							}		
+					
+					<?php 
+						
+												
+						if($imageAlignment == "right"){
+							echo "<option value='left'>Align left</option>";
+							echo "<option value='right' selected>Align right</option>";
+						} else {
+							echo "<option value='left' selected>Align left</option>";
+							echo "<option value='right'>Align right</option>";	
+						}		
 						
 						?>
 						
 					</select><br>
+					<?php
+						if($_SESSION['edit']){
+								echo "<img src='$image' class='edit-image'>";
+								// Flag "Edit" löschen:
+								$_SESSION['edit'] = false; 
+							}
+					
+					?>
+					
+					
 					<span class="error"><?=$errorText?></span><br>
 					<textarea name="content" placeholder="Text..."><?=$content?></textarea>
 					<br>
@@ -433,15 +463,16 @@ if(DEBUG)				echo "<p class='debug hint'>Line <b>" . __LINE__ . "</b>: Logout wi
 				</form>
 			</main>
 			
-			<!-- Formular Neue Kategorie -->
+			<!----------- Formular Neue Kategorie ----------->
+			
 			<aside class="new-category">
 				<h3>Neue Kategorie anlegen</h3>
 				
 				<br>
 				<form action="<?=$_SERVER['SCRIPT_NAME']?>" method="POST">
-					<span><?=$categoryMessage?></span>
+					<span><?=$categoryMessage?></span><br>
 					<input type="hidden" name="formsentNewCategory">
-					<input type="text" name="newCategory"><br>
+					<input type="text" name="newCategory" value="<?=$newCategory?>"><br>
 					<input type="submit" value="Kategorie anlegen" class="button">
 				</form>
 			</aside><br>

@@ -7,6 +7,19 @@
 .error {
 	color: tomato;
 	
+	
+}
+
+
+a:hover{
+	text-decoration: none;
+}
+
+.login-message{
+	float: left;
+	color: yellow;
+	padding-right: 15px;
+	
 }
 
 body{
@@ -94,6 +107,10 @@ h3{
 	font-size: 2em;
 }
 
+.entry-del, .entry-edit{
+	color: tomato;
+}
+
 .blog-headline{
 	padding: 20px;
 	text-align: center;
@@ -111,13 +128,7 @@ h3.headline{
 	padding: 17px;
 }
 
-p.categories-header{
-	font-size: 2em;
-	color: #fff;
-	margin-top: 90px;
-	padding: 20px 0;
-	text-shadow: 1px 1px 2px black, 0 0 25px grey, 0 0 5px darkgrey;
-}
+
 
 aside {
 	float: right;
@@ -136,6 +147,15 @@ aside ul li{
     word-wrap: break-word;
 }
 
+.selected-category{
+	background-color: #d7d7d7;
+	
+	
+}
+.selected-category a {
+	color: #4d4d4d;
+}
+
 main {
 	float:left;
 	width: 70%;
@@ -150,13 +170,20 @@ article, .new-entry, .new-category{
 
 ul.category-list {
    float: right;
-    
+   
 }
 
 p.whowrote {
 	font-size: .8em;
 	color: #c2c2a3;
 	font-style: italic;
+}
+p.categories-header{
+	font-size: 2em;
+	color: #fff;
+	margin-top: 90px;
+	padding: 20px 0;
+	text-shadow: 1px 1px 2px black, 0 0 25px grey, 0 0 5px darkgrey;
 }
 
 .category-list li{
