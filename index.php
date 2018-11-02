@@ -185,10 +185,8 @@ if(DEBUG)				echo "<p class='debug hint'>Line <b>" . __LINE__ . "</b>: Logout wi
 						// Die Seite neuladen:
 						header("Location: index.php");
 						exit;
-										
-					}
-
-				
+						
+						
 					/********************* LOGOUT ENDE **********************/	
 					/********************************************************/
 
@@ -196,8 +194,10 @@ if(DEBUG)				echo "<p class='debug hint'>Line <b>" . __LINE__ . "</b>: Logout wi
 					/********************************************************/
 					/************** URL-SchowCategory auslesen **************/
 					/********************************************************/
-
-					if($action == "showCategory"){
+						
+										
+					}elseif($action == "showCategory"){
+						
 if(DEBUG)				echo "<p class='debug hint'>Line <b>" . __LINE__ . "</b>: SchowCategory wird durchgeführt: action = $action'<i>(" . basename(__FILE__) . ")</i></p>";
 						
 						// Prüfen, ob und welche Kategorie ausgewählt/übergeben wurde:
@@ -208,15 +208,15 @@ if(DEBUG)					echo "<p class='debug'>Line <b>" . __LINE__ . "</b>: categoryToSho
 							
 
 
-						} // Prüfen, welche Kategorie ausgewählt wurde - Ende
+						}
 						
-					} // URL-SchowCategory auslesen - Ende
 					
+				
 					/********************************************************/
 					/***************** URL-delete auslesen ******************/
 					/********************************************************/
 					
-					if($action == "delete"){
+					} elseif($action == "delete"){
 if(DEBUG)				echo "<p class='debug hint'>Line <b>" . __LINE__ . "</b>: 'delete' wird durchgeführt: action = $action'<i>(" . basename(__FILE__) . ")</i></p>";
 						// Prüfen, ob und welche Kategorie ausgewählt/übergeben wurde:
 						if(isset($_GET['entryToDelete'])){
@@ -224,13 +224,15 @@ if(DEBUG)					echo "<p class='debug hint'>Line <b>" . __LINE__ . "</b>: URL-Para
 							$entryToDelete = cleanString($_GET['entryToDelete']);
 if(DEBUG)					echo "<p class='debug'>Line <b>" . __LINE__ . "</b>: entryToDelete: $entryToDelete<i>(" . basename(__FILE__) . ")</i></p>";
 						}
-					}
 					
+					
+						
 					/********************************************************/
 					/******************* URL-Edit auslesen ******************/
-					/********************************************************/
-					
-					if($action=="edit"){
+					/********************************************************/	
+						
+						
+					}elseif($action=="edit"){
 if(DEBUG)				echo "<p class='debug hint'>Line <b>" . __LINE__ . "</b>: 'edit' wird durchgeführt: action = $action'<i>(" . basename(__FILE__) . ")</i></p>";
 						// Prüfen, ob und welcher Beitrag ausgewählt/übergeben wurde:
 						if(isset($_GET['entryToEdit'])){
@@ -238,7 +240,23 @@ if(DEBUG)					echo "<p class='debug hint'>Line <b>" . __LINE__ . "</b>: URL-Para
 							$entryToEdit = cleanString($_GET['entryToEdit']);
 if(DEBUG)					echo "<p class='debug'>Line <b>" . __LINE__ . "</b>: entryToEdit: $entryToEdit<i>(" . basename(__FILE__) . ")</i></p>";
 						}
+					
+										
+					
+						
+						
+					/********************************************************/
+					/*********** Flag EDIT löschen, wenn man auf ************/
+					/**** "dashboard.php" auf Link "Zum Frontend" klickt ****/
+					/********************************************************/
+					
+					}elseif($action == "deleteEditMode"){
+						$_SESSION['edit'] = NULL;
 					}
+					
+					
+					
+					
 					
 				} // URL-Parameterverarbeitung - Ende 
 				
@@ -255,17 +273,47 @@ if(DEBUG)					echo "<p class='debug'>Line <b>" . __LINE__ . "</b>: entryToEdit: 
 if(DEBUG)			echo "<p class='debug'>Line <b>" . __LINE__ . "</b>: Blogbeitrag $entryToDelete wird gelöscht... <i>(" . basename(__FILE__) . ")</i></p>";
 					
 					//prüfen, ob der Beitrag in DB existiert:
-					$statement = $pdo->prepare("SELECT blog_id FROM blogs WHERE blog_id = :ph_blog_id");
+					$statement = $pdo->prepare("SELECT blog_id, blog_image FROM blogs WHERE blog_id = :ph_blog_id");
 					$statement->execute( array("ph_blog_id" => $entryToDelete)
 										) OR DIE( "<p class='debug'>Line <b>" . __LINE__ . "</b>: " . $statement->errorInfo()[2] . " <i>(" . basename(__FILE__) . ")</i></p>" );
-					$entryExists = $statement->fetchColumn();
+					$entryToDelElements = $statement->fetch(PDO::FETCH_ASSOC);
+					echo "<pre class='debug'>";
+					print_r($entryToDelElements);
+					echo "</pre>";
 					
-					if(!$entryExists){
+					$image = $entryToDelElements['blog_image'];
+				
+					
+					
+					if(!$entryToDelElements){
 						// Fehlrfall: Beitrag existiert nicht
 if(DEBUG)				echo "<p class='debug err'>Line <b>" . __LINE__ . "</b>: Blogbeitrag $entryToDelete existiert nicht <i>(" . basename(__FILE__) . ")</i></p>";
 					}else{
 						// Erfolgsfall: Beitrag existiert und wird gelöscht...
 if(DEBUG)				echo "<p class='debug ok'>Line <b>" . __LINE__ . "</b>: Blogbeitrag $entryToDelete existiert und wird gelöscht... <i>(" . basename(__FILE__) . ")</i></p>";
+						// Zuerst das Bild aus DB löschen...
+						
+						
+						
+						
+						
+						
+						// Sicherstellen, dass das Bild nicht leer ist:
+						if($image != NULL){
+if(DEBUG)					echo "<p class='debug hint'>Line <b>" . __LINE__ . "</b>: Bild wird gelöscht...<i>(" . basename(__FILE__) . ")</i></p>";									
+							//Altes Bild vom Server löschen:
+							if(@unlink($image)){
+								//Erfolgsfall:
+if(DEBUG) 						echo "<p class='debug ok'>Line <b>" . __LINE__ . "</b>: Das alte Bild wurde vom Server gelöscht unter $image <i>(" . basename(__FILE__) . ")</i></p>";	
+								
+							}else{
+								//Fehlerfall:
+if(DEBUG) 						echo "<p class='debug err'>Line <b>" . __LINE__ . "</b>: Fehler beim der löschen des alten Bildes unter $image  <i>(" . basename(__FILE__) . ")</i></p>";									
+								
+							}
+						
+						} 
+						
 						
 						// Beitrag aus DB löschen:
 						$statement = $pdo->prepare("DELETE FROM blogs WHERE blog_id = :ph_blog_id");
@@ -302,6 +350,7 @@ if(DEBUG)				echo "<p class='debug ok'>Line <b>" . __LINE__ . "</b>: Blogbeitrag
 						// Daten über Radaktierenden Beitrag in Session schreiben, damit sie auf "dashboard.php" verfügbar sind
 				
 						while($row = $statement->fetch(PDO::FETCH_ASSOC)){
+							$_SESSION['blog_id']			= $row['blog_id'];
 							$_SESSION['cat_id'] 			= $row['cat_id'];
 							$_SESSION['blog_headline'] 		= $row['blog_headline'];
 							$_SESSION['blog_image'] 		= $row['blog_image'];
@@ -448,6 +497,7 @@ if(DEBUG)				echo "<p class='debug ok'>Line <b>" . __LINE__ . "</b>: Kategorie e
 					der Tabellen entsprechen.
 				-->
 				<?php foreach ($entriesArray AS $entry): ?>
+					
 					<article>
 						
 						<ul class="category-list">
@@ -465,8 +515,8 @@ if(DEBUG)				echo "<p class='debug ok'>Line <b>" . __LINE__ . "</b>: Kategorie e
 						
 						<?php 
 							// Convertierung in EU Datum und Zeit
-							$dateTime = isoToEuDateTime($entry['blog_date']); 
-					
+							$dateTime 	= isoToEuDateTime($entry['blog_date']); 
+							$image		= $entry['blog_image'];
 						?>
 						
 						<p class="whowrote">
@@ -475,7 +525,7 @@ if(DEBUG)				echo "<p class='debug ok'>Line <b>" . __LINE__ . "</b>: Kategorie e
 						</p>
 						<h3 class="headline"><?=$entry['blog_headline']?></h3>
 						<?php if($entry['blog_image']): ?>
-							<img src="<?=$entry['blog_image']?>" class="<?=$entry['blog_imageAlignment']?> article-image" />
+							<img src="<?=$image?>" class="<?=$entry['blog_imageAlignment']?> article-image" />
 						<?php endif ?>
 						<?php $entry['blog_content'] = str_replace("\r\n", "<br>", $entry['blog_content']) ?>
 						<p class="content"><?=$entry['blog_content']?></p>

@@ -178,147 +178,12 @@ if(DEBUG)						echo "<p class='debug ok'>Line <b>" . __LINE__ . "</b>: Kategorie
 /**********************************************************************************************/
 
 				/********************************************************/
-				/***************** FORMULARVERARBEITUNG *****************/
-				/********************************************************/
-				
-				/***************** für Blogformular  ********************/
-				/*************** Neuen Eintag verfassen *****************/
-				
-				if(isset($_POST['formsentNewEntry'])){
-if(DEBUG)			echo "<p class='debug'>Line <b>" . __LINE__ . "</b>: Formular 'NewEntry' wurde abgeschickt. <i>(" . basename(__FILE__) . ")</i></p>";
-					
-					$category 		= cleanString($_POST['category']);
-					$headline 		= cleanString($_POST['headline']);
-					$imageAlignment = cleanString($_POST['imageAlignment']);
-					$content 		= cleanString($_POST['content']);
-					
-if(DEBUG)			echo "<p class='debug'>Line <b>" . __LINE__ . "</b>: category = $category <i>(" . basename(__FILE__) . ")</i></p>";
-if(DEBUG)			echo "<p class='debug'>Line <b>" . __LINE__ . "</b>: headline = $headline <i>(" . basename(__FILE__) . ")</i></p>";
-if(DEBUG)			echo "<p class='debug'>Line <b>" . __LINE__ . "</b>: imageAlignment = $imageAlignment <i>(" . basename(__FILE__) . ")</i></p>";
-if(DEBUG)			echo "<p class='debug'>Line <b>" . __LINE__ . "</b>: content = $content <i>(" . basename(__FILE__) . ")</i></p>";
-					
-					$errorHeadline 	= checkInputString($headline);
-					$errorText 		= checkInputString($content, 10, 10000); 
-					
-					if($errorHeadline || $errorText){
-						// Fehlerfall:
-if(DEBUG) 				echo "<p class='debug err'>Line <b>" . __LINE__ . "</b>: Das Formular enthält noch Fehler <i>(" . basename(__FILE__) . ")</i></p>";							
-							
-					}else{
-						// Efolgsfall:
-						
-						// Nur wenn Formularfelder fehlerfrei sind, soll der Bildupload durchgeführt werden,
-						// da ansonsten trotz Feld-Fehler im Formular das neue Bild auf dem Server gespeichert 
-						// und das alte Bild gelöscht wäre
-						
-						/********************************************************/
-						/******************** FILE UPLOAD ***********************/
-						
-
-						// Prüfen, ob eine Bilddatei hochgeladen wurde
-						if($_FILES['image']['tmp_name']){
-if(DEBUG) 					echo "<p class='debug hint'>Line <b>" . __LINE__ . "</b>: Bildupload aktiv...<i>(" . basename(__FILE__) . ")</i></p>";		
-							
-							$image 					= $_FILES['image'];
-							$imageUploadReturnArray = imageUpload($image);
-							
-							//Prüfen, ob es einen Bildupload-Fehler gab:
-							if($imageUploadReturnArray['imageError']){
-								//Fehlerfall:
-if(DEBUG) 						echo "<p class='debug err'>Line <b>" . __LINE__ . "</b>: Fehler: $imageUploadReturnArray[imageError] <i>(" . basename(__FILE__) . ")</i></p>";	
-								$errorImageUpload = $imageUploadReturnArray['imageError'];
-							
-							}else{
-								//Erfolgsfall:
-if(DEBUG) 						echo "<p class='debug ok'>Line <b>" . __LINE__ . "</b>: Das Bild wird auf dem Server geladen <i>(" . basename(__FILE__) . ")</i></p>";										
-									
-								// Neuen Bildpfad speichern:
-								$image = $imageUploadReturnArray['imagePath'];
-								
-if(DEBUG) 						echo "<p class='debug ok'>Line <b>" . __LINE__ . "</b>: image = $image <i>(" . basename(__FILE__) . ")</i></p>";	
-								
-								
-							}
-							
-						}
-						
-						/***************** FILE UPLOAD ENDE *********************/
-						/********************************************************/
-
-							
-						// Abschließende Formularprüfung:
-						
-						if(!$errorImageUpload){
-							
-if(DEBUG) 					echo "<p class='debug ok'>Line <b>" . __LINE__ . "</b>: Das Formular ist fehlerfrei, die Daten können in DB geschrieben werden<i>(" . basename(__FILE__) . ")</i></p>";	
-							
-							
-							/******************* DB-Operation ********************/
-							
-							$statement = $pdo->prepare("INSERT INTO blogs (	blog_headline, 
-																			blog_image, 
-																			blog_imageAlignment, 
-																			blog_content, 
-																			cat_id, 
-																			usr_id ) 
-																	VALUES (:ph_blog_headline,
-																			:ph_blog_image,
-																			:ph_blog_imageAlignment,
-																			:ph_blog_content,
-																			:ph_cat_id,
-																			:ph_usr_id )
-														");
-							
-							$statement->execute(array(
-													"ph_blog_headline" 		=> $headline,
-													"ph_blog_image" 		=> $image,
-													"ph_blog_imageAlignment"=> $imageAlignment,
-													"ph_blog_content" 		=> $content,
-													"ph_cat_id" 			=> $category,
-													"ph_usr_id" 			=> $_SESSION['usr_id']
-														) ) OR DIE( "<p class='debug'>Line <b>" . __LINE__ . "</b>: " . $statement->errorInfo()[2] . " <i>(" . basename(__FILE__) . ")</i></p>"); 
-							
-							// Last Insert-ID abholen und prüfen
-						
-							$newEntryId = $pdo->lastInsertId();
-if(DEBUG)					echo "<p class='debug'>Line <b>" . __LINE__ . "</b>: \$newEntryId: $newEntryId <i>(" . basename(__FILE__) . ")</i></p>";		
-							
-							// Prüfen, ob der Eintrag gespeichert wurde:
-							if(!$newEntryId){
-								// Fehlerfall:
-if(DEBUG)						echo "<p class='debug err'>Line <b>" . __LINE__ . "</b>: Fehler beim Speichern des neuen Eintrags <i>(" . basename(__FILE__) . ")</i></p>";
-								$entryMessage = "<p class='error'>Es ist ein Fehler aufgetreten, versuchen Sie es nochmal</p>";
-																
-							}else{
-								// Erfolgsfall:
-if(DEBUG)						echo "<p class='debug ok'>Line <b>" . __LINE__ . "</b>: Neuer Eintrag wurde mit der ID $newEntryId erfolgreich geschpeichert. <i>(" . basename(__FILE__) . ")</i></p>";
-								$entryMessage = "<p class='success'>Eintrag <b>\"$headline\"</b> wurde erfolgreich gescheichert.</p>";
-								
-								// Felder leeren:
-								$category 		= NULL;
-								$headline 		= NULL;
-								$image 			= NULL;
-								$imageAlignment = NULL;
-								$content 		= NULL;
-								
-							} // Prüfen, ob Eintrag gespeichert wurde - Ende
-							
-						} // Eintrag in DB speichern - Ende
-						
-					} // Fileupload - Ende
-				
-				} // Formularverarbeitung für Blogformular - Ende
-				
-				
-				
-				
-
-/**********************************************************************************************/
 				/*************** Ein Eintag redaktieren *****************/
+				/********************************************************/
 				
 			
 				// Nur wenn ein Editmodus eingeschaltet ist:
-				if($_SESSION['edit']){
+				if(isset($_SESSION['edit'])){
 if(DEBUG)			echo "<p class='debug'>Line <b>" . __LINE__ . "</b>: Die Session läuft mit Flag 'edit'. <i>(" . basename(__FILE__) . ")</i></p>";					
 					$category 		= $_SESSION['cat_id'];
 					$headline 		= $_SESSION['blog_headline'];
@@ -334,9 +199,275 @@ if(DEBUG)			echo "<p class='debug'>Line <b>" . __LINE__ . "</b>: imageAlignment 
 if(DEBUG)			echo "<p class='debug'>Line <b>" . __LINE__ . "</b>: content = $content <i>(" . basename(__FILE__) . ")</i></p>";
 					
 					
+					/********** Ein Einttarg in DB aktuelisieren *********/
+					
+					// 1. Formulag abschicken
+					if(isset($_POST['formsentNewEntry'])){
+if(DEBUG)				echo "<p class='debug'>Line <b>" . __LINE__ . "</b>: Formular 'NewEntry' wurde abgeschickt in Editmodus. <i>(" . basename(__FILE__) . ")</i></p>";
+						
+						// Daten aus Formulr auslesen:
+						
+						$category 		= cleanString($_POST['category']);
+						$headline 		= cleanString($_POST['headline']);
+						$imageAlignment = cleanString($_POST['imageAlignment']);
+						$content 		= cleanString($_POST['content']);
+						
+if(DEBUG)				echo "<p class='debug'>Line <b>" . __LINE__ . "</b>: category 		= $category <i>(" . basename(__FILE__) . ")</i></p>";
+if(DEBUG)				echo "<p class='debug'>Line <b>" . __LINE__ . "</b>: headline 		= $headline <i>(" . basename(__FILE__) . ")</i></p>";
+if(DEBUG)				echo "<p class='debug'>Line <b>" . __LINE__ . "</b>: image 			= $image <i>(" . basename(__FILE__) . ")</i></p>";
+if(DEBUG)				echo "<p class='debug'>Line <b>" . __LINE__ . "</b>: imageAlignment = $imageAlignment <i>(" . basename(__FILE__) . ")</i></p>";
+if(DEBUG)				echo "<p class='debug'>Line <b>" . __LINE__ . "</b>: content 		= $content <i>(" . basename(__FILE__) . ")</i></p>";						
+						
+						$errorHeadline 	= checkInputString($headline);
+						$errorText 		= checkInputString($content, 10, 10000); 
+						
+						if($errorHeadline || $errorText){
+							// Fehlerfall:
+if(DEBUG) 					echo "<p class='debug err'>Line <b>" . __LINE__ . "</b>: Das Formular enthält noch Fehler <i>(" . basename(__FILE__) . ")</i></p>";		
+						
+						}else{
+							// Efolgsfall:
+							
+							// Nur wenn Formularfelder fehlerfrei sind, soll der Bildupload durchgeführt werden,
+							// da ansonsten trotz Feld-Fehler im Formular das neue Bild auf dem Server gespeichert 
+							// und das alte Bild gelöscht wäre
+							
+							/********************************************************/
+							/******************** FILE UPLOAD ***********************/
+							
+
+							// Prüfen, ob eine neue Bilddatei hochgeladen wurde:
+							
+							if($_FILES['image']['tmp_name']){
+if(DEBUG)						echo "<p class='debug hint'>Line <b>" . __LINE__ . "</b>: Eine neue Bilddatei wird geladen...<i>(" . basename(__FILE__) . ")</i></p>";		
+								
+								$image 					= $_FILES['image'];
+								$imageUploadReturnArray = imageUpload($image);
+								
+								//Prüfen, ob es einen Bildupload-Fehler gab:
+								if($imageUploadReturnArray['imageError']){
+									//Fehlerfall:
+if(DEBUG) 							echo "<p class='debug err'>Line <b>" . __LINE__ . "</b>: Fehler: $imageUploadReturnArray[imageError] <i>(" . basename(__FILE__) . ")</i></p>";	
+									$errorImageUpload = $imageUploadReturnArray['imageError'];
+								
+								}else{
+									//Erfolgsfall:
+if(DEBUG) 							echo "<p class='debug ok'>Line <b>" . __LINE__ . "</b>: Das Bild wird auf dem Server geladen <i>(" . basename(__FILE__) . ")</i></p>";										
+										
+									// Neuen Bildpfad speichern:
+									$image = $imageUploadReturnArray['imagePath'];
+									
+if(DEBUG) 							echo "<p class='debug ok'>Line <b>" . __LINE__ . "</b>: image = $image <i>(" . basename(__FILE__) . ")</i></p>";
+								
+								}
+							}
+							/***************** FILE UPLOAD ENDE *********************/
+							/********************************************************/
+							
+							// Abschließende Formularprüfung:
+							
+							if(!$errorImageUpload){
+if(DEBUG) 						echo "<p class='debug ok'>Line <b>" . __LINE__ . "</b>: Das Formular ist fehlerfrei, die Daten können in DB aktualisiert werden<i>(" . basename(__FILE__) . ")</i></p>";									
+								
+								/******************* DB-Operation ********************/
+								
+								$statement = $pdo->prepare("UPDATE blogs SET	
+															blog_headline 		= :ph_blog_headline, 
+															blog_image 			= :ph_blog_image, 
+															blog_imageAlignment = :ph_blog_imageAlignment, 
+															blog_content 		= :ph_blog_content,
+															cat_id 				= :ph_cat_id, 
+															usr_id 				= :ph_usr_id
+													WHERE	blog_id 			= :ph_blog_id
+															");
+								
+								$statement->execute(array(
+														"ph_blog_headline" 		=> $headline,
+														"ph_blog_image" 		=> $image,
+														"ph_blog_imageAlignment"=> $imageAlignment,
+														"ph_blog_content" 		=> $content,
+														"ph_cat_id" 			=> $category,
+														"ph_usr_id" 			=> $_SESSION['usr_id'],
+														"ph_blog_id"			=> $_SESSION['blog_id']
+															) ) OR DIE( "<p class='debug'>Line <b>" . __LINE__ . "</b>: " . $statement->errorInfo()[2] . " <i>(" . basename(__FILE__) . ")</i></p>");
+								
+								$editedEntries = $statement->rowCount();
+if(DEBUG)						echo "<p class='debug'>Line <b>" . __LINE__ . "</b>: Beitrag wurde erfolgreich aktualisiert, editedEntries: $editedEntries <i>(" . basename(__FILE__) . ")</i></p>";
+								
+								// Prüfen, ob der Eintrag gespeichert wurde:
+								if(!$editedEntries){
+									// Fehlerfall:
+if(DEBUG)							echo "<p class='debug'>Line <b>" . __LINE__ . "</b>: Es ist ein Fehler aufgetreten beim Speichern  <i>(" . basename(__FILE__) . ")</i></p>";									
+									$entryMessage = "<p class='error'>Es ist ein Fehler aufgetreten, versuchen Sie es nochmal</p>";
+								}else{
+									//Erfolgsfall:
+									
+if(DEBUG)							echo "<p class='debug ok'>Line <b>" . __LINE__ . "</b>: Der Eintrag wurde erfolgreich aktualisiert. <i>(" . basename(__FILE__) . ")</i></p>";
+									$entryMessage = "<p class='success'>Eintrag <b>\"$headline\"</b> wurde erfolgreich aktualisiert.</p>";									
+								
+									
+									// Flag "Edit" am Ende löschen:
+									$_SESSION['edit'] = NULL; 
+									
+									// Felder leeren:
+									$category 		= NULL;
+									$headline 		= NULL;
+									$image 			= NULL;
+									$imageAlignment = NULL;
+									$content 		= NULL;
+									
+									
+								}
+								
+							}
+													
+						}
+												
+					} // Formularabschicken - Ende
+					
+				}else{
+					// Nur wenn das Editmodus ausgeschaltet ist, neuen Eintrag Verfassen:
+/**********************************************************************************************/
+
+					/********************************************************/
+					/***************** FORMULARVERARBEITUNG *****************/
+					/********************************************************/
+					
+					/***************** für Blogformular  ********************/
+					/*************** Neuen Eintag verfassen *****************/
+					
+					
+					if(isset($_POST['formsentNewEntry'])){
+if(DEBUG)				echo "<p class='debug'>Line <b>" . __LINE__ . "</b>: Formular 'NewEntry' wurde abgeschickt. <i>(" . basename(__FILE__) . ")</i></p>";
+						
+						$category 		= cleanString($_POST['category']);
+						$headline 		= cleanString($_POST['headline']);
+						$imageAlignment = cleanString($_POST['imageAlignment']);
+						$content 		= cleanString($_POST['content']);
+						
+if(DEBUG)				echo "<p class='debug'>Line <b>" . __LINE__ . "</b>: category = $category <i>(" . basename(__FILE__) . ")</i></p>";
+if(DEBUG)				echo "<p class='debug'>Line <b>" . __LINE__ . "</b>: headline = $headline <i>(" . basename(__FILE__) . ")</i></p>";
+if(DEBUG)				echo "<p class='debug'>Line <b>" . __LINE__ . "</b>: imageAlignment = $imageAlignment <i>(" . basename(__FILE__) . ")</i></p>";
+if(DEBUG)				echo "<p class='debug'>Line <b>" . __LINE__ . "</b>: content = $content <i>(" . basename(__FILE__) . ")</i></p>";
+						
+						$errorHeadline 	= checkInputString($headline);
+						$errorText 		= checkInputString($content, 10, 10000); 
+						
+						if($errorHeadline || $errorText){
+							// Fehlerfall:
+if(DEBUG) 					echo "<p class='debug err'>Line <b>" . __LINE__ . "</b>: Das Formular enthält noch Fehler <i>(" . basename(__FILE__) . ")</i></p>";							
+								
+						}else{
+							// Efolgsfall:
+							
+							// Nur wenn Formularfelder fehlerfrei sind, soll der Bildupload durchgeführt werden,
+							// da ansonsten trotz Feld-Fehler im Formular das neue Bild auf dem Server gespeichert 
+							// und das alte Bild gelöscht wäre
+							
+							/********************************************************/
+							/******************** FILE UPLOAD ***********************/
+							
+
+							// Prüfen, ob eine Bilddatei hochgeladen wurde
+							if($_FILES['image']['tmp_name']){
+if(DEBUG) 						echo "<p class='debug hint'>Line <b>" . __LINE__ . "</b>: Bildupload aktiv...<i>(" . basename(__FILE__) . ")</i></p>";		
+								
+								$image 					= $_FILES['image'];
+								$imageUploadReturnArray = imageUpload($image);
+								
+								//Prüfen, ob es einen Bildupload-Fehler gab:
+								if($imageUploadReturnArray['imageError']){
+									//Fehlerfall:
+if(DEBUG) 							echo "<p class='debug err'>Line <b>" . __LINE__ . "</b>: Fehler: $imageUploadReturnArray[imageError] <i>(" . basename(__FILE__) . ")</i></p>";	
+									$errorImageUpload = $imageUploadReturnArray['imageError'];
+								
+								}else{
+									//Erfolgsfall:
+if(DEBUG) 							echo "<p class='debug ok'>Line <b>" . __LINE__ . "</b>: Das Bild wird auf dem Server geladen <i>(" . basename(__FILE__) . ")</i></p>";										
+										
+									// Neuen Bildpfad speichern:
+									$image = $imageUploadReturnArray['imagePath'];
+									
+if(DEBUG) 							echo "<p class='debug ok'>Line <b>" . __LINE__ . "</b>: image = $image <i>(" . basename(__FILE__) . ")</i></p>";	
+									
+									
+								}
+								
+							}
+							
+							/***************** FILE UPLOAD ENDE *********************/
+							/********************************************************/
+
+								
+							// Abschließende Formularprüfung:
+							
+							if(!$errorImageUpload){
+								
+if(DEBUG) 						echo "<p class='debug ok'>Line <b>" . __LINE__ . "</b>: Das Formular ist fehlerfrei, die Daten können in DB geschrieben werden<i>(" . basename(__FILE__) . ")</i></p>";	
+								
+								
+								/******************* DB-Operation ********************/
+								
+								$statement = $pdo->prepare("INSERT INTO blogs (	blog_headline, 
+																				blog_image, 
+																				blog_imageAlignment, 
+																				blog_content, 
+																				cat_id, 
+																				usr_id ) 
+																		VALUES (:ph_blog_headline,
+																				:ph_blog_image,
+																				:ph_blog_imageAlignment,
+																				:ph_blog_content,
+																				:ph_cat_id,
+																				:ph_usr_id )
+															");
+								
+								$statement->execute(array(
+														"ph_blog_headline" 		=> $headline,
+														"ph_blog_image" 		=> $image,
+														"ph_blog_imageAlignment"=> $imageAlignment,
+														"ph_blog_content" 		=> $content,
+														"ph_cat_id" 			=> $category,
+														"ph_usr_id" 			=> $_SESSION['usr_id']
+															) ) OR DIE( "<p class='debug'>Line <b>" . __LINE__ . "</b>: " . $statement->errorInfo()[2] . " <i>(" . basename(__FILE__) . ")</i></p>"); 
+								
+								// Last Insert-ID abholen und prüfen
+							
+								$newEntryId = $pdo->lastInsertId();
+if(DEBUG)						echo "<p class='debug'>Line <b>" . __LINE__ . "</b>: \$newEntryId: $newEntryId <i>(" . basename(__FILE__) . ")</i></p>";		
+								
+								// Prüfen, ob der Eintrag gespeichert wurde:
+								if(!$newEntryId){
+									// Fehlerfall:
+if(DEBUG)							echo "<p class='debug err'>Line <b>" . __LINE__ . "</b>: Fehler beim Speichern des neuen Eintrags <i>(" . basename(__FILE__) . ")</i></p>";
+									$entryMessage = "<p class='error'>Es ist ein Fehler aufgetreten, versuchen Sie es nochmal</p>";
+																	
+								}else{
+									// Erfolgsfall:
+if(DEBUG)							echo "<p class='debug ok'>Line <b>" . __LINE__ . "</b>: Neuer Eintrag wurde mit der ID $newEntryId erfolgreich geschpeichert. <i>(" . basename(__FILE__) . ")</i></p>";
+									$entryMessage = "<p class='success'>Eintrag <b>\"$headline\"</b> wurde erfolgreich gescheichert.</p>";
+									
+									// Felder leeren:
+									$category 		= NULL;
+									$headline 		= NULL;
+									$image 			= NULL;
+									$imageAlignment = NULL;
+									$content 		= NULL;
+									
+								} // Prüfen, ob Eintrag gespeichert wurde - Ende
+								
+							} // Eintrag in DB speichern - Ende
+							
+						} // Fileupload - Ende
+					
+					} // Formularverarbeitung für Blogformular - Ende
+				
+				
 				}
+				
 
 /**********************************************************************************************/
+
 
 				/********************************************************/
 				/************** URL-Parameterverarbeitung ***************/
@@ -361,11 +492,24 @@ if(DEBUG)				echo "<p class='debug hint'>Line <b>" . __LINE__ . "</b>: Logout wi
 						// Weiterleiten auf Indexseite:
 						header("Location: index.php");
 						exit;
-										
+							
+
+					// Editmodus ausschalten:
+							
+					}elseif($action == "deleteEditMode"){
+						$_SESSION['edit'] = NULL;
+						
+						//Felder leeren:
+						$category 		= NULL;
+						$headline 		= NULL;
+						$image 			= NULL;
+						$imageAlignment = NULL;
+						$content 		= NULL;
+						
 					}
 				/********************* LOGOUT ENDE **********************/	
 				/********************************************************/
-				
+					
 				}
 				
 /**********************************************************************************************/
@@ -387,11 +531,11 @@ if(DEBUG)				echo "<p class='debug hint'>Line <b>" . __LINE__ . "</b>: Logout wi
 	<body>
 		<header>
 			<div class="hello">	
-			
+				
 				<!------- Begrüßung und Logout-Link --------->
 			
 				<p>Hallo, <?=$_SESSION['usr_firstname']?>!  |  <a href="?action=logout">Logout</a></p>
-				<p><a href="index.php"><< Zum Frontend</a></p>
+				<p><a href="index.php?action=deleteEditMode"><< Zum Frontend</a></p>
 			</div>
 		</header>
 		<br>
@@ -402,10 +546,29 @@ if(DEBUG)				echo "<p class='debug hint'>Line <b>" . __LINE__ . "</b>: Logout wi
 			</div>
 			
 			
-			<!------------- Formular Neuer Eintrag ---------->
-			
-			<main class="new-entry">
-				<h3>Neuen Blog-Eintrag Verfassen</h3>
+			<!------------- Formular Neuer Eintrag / Redaktieren ---------->
+			<?php
+				if(isset($_SESSION['edit'])){
+					$mainClass = "edit-entry";
+					$asideClass = "edit-category";
+				} else {
+					$mainClass = "new-entry";
+					$asideClass = "new-category";
+				}
+			?>
+			<main class="new-entry <?=$mainClass?>">
+				<?php
+					if(isset($_SESSION['edit'])){
+						$header = "Blog-Eintrag Redaktieren";
+					}else{
+						$header = "Neuen Blog-Eintrag Verfassen";
+					}
+				?>
+				<h3><?=$header?></h3>
+				
+				<?php if(isset($_SESSION['edit'])): ?>
+					<h5><a href="?action=deleteEditMode">Neuer Eintrag</a></h5>
+				<?php endif ?>
 				
 				<form action="<?=$_SERVER['SCRIPT_NAME']?>" method="POST" enctype="multipart/form-data">
 					<span><?=$entryMessage?></span>
@@ -447,11 +610,13 @@ if(DEBUG)				echo "<p class='debug hint'>Line <b>" . __LINE__ . "</b>: Logout wi
 						
 					</select><br>
 					<?php
-						if($_SESSION['edit']){
+						if(isset($_SESSION['edit'])){
+							
+							if(isset($image)){
 								echo "<img src='$image' class='edit-image'>";
-								// Flag "Edit" löschen:
-								$_SESSION['edit'] = false; 
 							}
+					
+						}
 					
 					?>
 					
@@ -465,7 +630,7 @@ if(DEBUG)				echo "<p class='debug hint'>Line <b>" . __LINE__ . "</b>: Logout wi
 			
 			<!----------- Formular Neue Kategorie ----------->
 			
-			<aside class="new-category">
+			<aside class="new-category <?=$asideClass?>">
 				<h3>Neue Kategorie anlegen</h3>
 				
 				<br>
