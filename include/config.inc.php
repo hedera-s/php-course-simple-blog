@@ -13,7 +13,7 @@
 		
 		define("DB_SYSTEM"	,	"mysql");
 		define("DB_HOST"	,	"localhost");
-		define("DB_NAME"	,	"blog");
+		define("DB_NAME"	,	"blog_oop");
 		define("DB_USER"	,	"root");
 		define("DB_PWD"		,	"");
 		
@@ -35,6 +35,7 @@
 		define("DEBUG"		, 	true);
 		define("DEBUG_F"	, 	true);
 		define("DEBUG_DB"	, 	true);
+		define("DEBUG_C"	, 	true);
 		
 	
 		
