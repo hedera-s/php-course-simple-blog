@@ -112,6 +112,9 @@ if(DEBUG_C)				echo "</pre>";
 				/*************** blog_content ****************/
 				
 					public function getBlog_content(){
+					//	$content = str_replace("\r\n", "<br>", $this->blog_content);
+					//return $content;
+						
 						return $this->blog_content;
 					}
 					
@@ -157,6 +160,9 @@ if(DEBUG_C)					echo "<p class='debug err'>Line <b>" . __LINE__ . "</b>: FEHLER:
 						}
 					}
 					
+					
+					
+					
 /*******************************************************************************************/	
 									
 					/**************************************/
@@ -166,14 +172,14 @@ if(DEBUG_C)					echo "<p class='debug err'>Line <b>" . __LINE__ . "</b>: FEHLER:
 				/******* STATISCHE METHODE ZUM AUSLESEN ********/
 				/************ ALLER BEITRÄGE AUS DB ************/
 				
-					public static function fetchAllEntriesFromDb($pdo, $categoryToShow=NULL){
+					public static function fetchFromDb($pdo, $categoryToShow = NULL){
 if(DEBUG_C)				echo "<h3 class='debugClass'><b>Line  " . __LINE__ .  "</b>: Aufruf " . __METHOD__ . "(\$pdo, $categoryToShow) (<i>" . basename(__FILE__) . "</i>)</h3>";							
 						
 						$sql = "SELECT * FROM blog 
 								INNER JOIN user 	USING(usr_id)
-								INNER JOIN category USING(cat_id)
-								WHERE cat_id = ?
-								ORDER BY blog_id DESC";
+								INNER JOIN category USING(cat_id)";
+						if($categoryToShow) $sql .= " WHERE cat_id = ?";	
+						$sql .= " ORDER BY blog_id DESC";
 						
 						$params = array($categoryToShow);
 						$statement = $pdo->prepare($sql);
@@ -184,26 +190,29 @@ if(DEBUG_C)				echo "<h3 class='debugClass'><b>Line  " . __LINE__ .  "</b>: Aufr
 						
 						// Je Datensatz ein Objekt erstellen und in Array speichern:
 
-							$entriesArray = array( new Blog	(	$row['blog_headline'],
+							$entriesArray[] =  new Blog	(	$row['blog_headline'],
 															$row['blog_imageAlignment'],
 															$row['blog_content'],
+															
 															new Category(	$row['cat_id'],
 																			$row['cat_name']
 																		),
-															new User 	(	$row['usr_id'],
+																																			
+															new User 	(	$row['usr_email'],
+																			$row['usr_password'],
+																			$row['usr_id'],
 																			$row['usr_firstname'],
 																			$row['usr_lastname'],
-																			$row['usr_email'],
-																			$row['usr_city'],
-																			$row['usr_password']
+																			$row['usr_city']
 																		),
+																		
 															$row['blog_image'],
 															$row['blog_id'],
 															$row['blog_date']
 															
 														
 							
-							));
+							);
 							
 						}
 						
@@ -211,8 +220,39 @@ if(DEBUG_C)				echo "<h3 class='debugClass'><b>Line  " . __LINE__ .  "</b>: Aufr
 					}
 						
 						
-								
+				/*************************************************/
+				/********* Neuer Beitrag in DB speichern *********/
+				/*************************************************/
+				
+					public function saveToDb($pdo){
+if(DEBUG_C)				echo "<h3 class='debugClass'><b>Line  " . __LINE__ .  "</b>: Aufruf " . __METHOD__ . "() (<i>" . basename(__FILE__) . "</i>)</h3>";					
 						
+						$sql = "INSERT INTO blog (	blog_headline, 
+													blog_image, 
+													blog_imageAlignment, 
+													blog_content, 
+													cat_id, 
+													usr_id ) 
+											VALUES (?,?,?,?,?,?)";
+						$params = array(
+										$this->getBlog_headline(),
+										$this->getBlog_image(),
+										$this->getBlog_imageAlignment(),
+										$this->getBlog_content(),
+										$this->getCategory()->getCat_id(),
+										$this->getUser()->getUsr_id()
+										);
+						$statement = $pdo->prepare($sql);
+						$statement->execute($params);
+						return $pdo->lastInsertId();
+						
+					}
+					
+				//
+				public function getContentWithBr(){
+					return str_replace("\r\n", "<br>", $this->getBlog_content());
+				}
+					
 					
 					
 				

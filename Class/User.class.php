@@ -14,13 +14,13 @@
 					/*******************************/
 					/********** ATTRIBUTES *********/
 					/*******************************/
-					
+					private $usr_email;
+					private $usr_password;
 					private $usr_id;
 					private $usr_firstname;
 					private $usr_lastname;
-					private $usr_email;
 					private $usr_city;
-					private $usr_password;
+					
 					
 					
 /*******************************************************************************************/	
@@ -30,22 +30,22 @@
 					/*********************************/
 					
 					public function __construct(
-												
-												$usr_email = NULL, 
-												$usr_password = NULL,
-												$usr_id = NULL, 
-												$usr_firstname = NULL, 
-												$usr_lastname = NULL,
-												$usr_city = NULL												
+												$usr_email 		= NULL, 
+												$usr_password 	= NULL,
+												$usr_id 		= NULL, 
+												$usr_firstname 	= NULL, 
+												$usr_lastname 	= NULL,
+												$usr_city 		= NULL												
 												){
 if(DEBUG_C)				echo "<h3 class='debugClass'><b>Line  " . __LINE__ .  "</b>: Aufruf " . __METHOD__ . "($usr_email,  $usr_password, $usr_id, $usr_firstname, $usr_lastname,  $usr_city)  (<i>" . basename(__FILE__) . "</i>)</h3>";						
 						// Setter nur aufrufen, wenn der jeweilige Parameter einen gültigen Wert enthält
+						if($usr_email) 			$this->setUsr_email($usr_email);
+						if($usr_password) 		$this->setUsr_password($usr_password);
 						if($usr_id) 			$this->setUsr_id($usr_id);
 						if($usr_firstname) 		$this->setUsr_firstname($usr_firstname);
 						if($usr_lastname)		$this->setUsr_lastname($usr_lastname);
-						if($usr_email) 			$this->setUsr_email($usr_email);
 						if($usr_city) 			$this->setUsr_city($usr_city);
-						if($usr_password) 		$this->setUsr_password($usr_password);
+						
 								
 						
 						
@@ -123,6 +123,12 @@ if(DEBUG_C)				echo "</pre>";
 						$this->usr_password = cleanString($usr_password);
 					}
 					
+					/************* virtuelles Attribut Fullname **************/
+					public function getUsr_Fullname() {
+						return $this->getUsr_firstname() . " " . $this->getUsr_lastname();
+					}
+					
+					
 /*******************************************************************************************/	
 									
 					/**************************************/
@@ -174,6 +180,8 @@ if(DEBUG_C)				echo "</pre>";
 							return true;
 						}
 					}
+					
+					
 				
 				
 				

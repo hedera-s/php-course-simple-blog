@@ -36,10 +36,10 @@ if(DEBUG_C)				echo "<h3 class='debugClass'><b>Line  " . __LINE__ .  "</b>: Aufr
 						if($cat_id) 			$this->setCat_id($cat_id);
 						if($cat_name) 			$this->setCat_name($cat_name);
 						
-						
 if(DEBUG_C)				echo "<pre class='debugClass'><b>Line  " . __LINE__ .  "</b> <i>(" . basename(__FILE__) . ")</i>:<br>";					
 if(DEBUG_C)				print_r($this);					
-if(DEBUG_C)				echo "</pre>";	
+if(DEBUG_C)				echo "</pre>";						
+	
 					}
 				
 				
@@ -89,10 +89,10 @@ if(DEBUG_C)				echo "</pre>";
 					*
 					*/
 					
-					public static function fetchAllCategoriesFromDb($pdo){
+					public static function fetchFromDb($pdo){
 if(DEBUG_C)				echo "<h3 class='debugClass'><b>Line  " . __LINE__ .  "</b>: Aufruf " . __METHOD__ . "() (<i>" . basename(__FILE__) . "</i>)</h3>";
 						
-						$sql = "SELECT cat_name, cat_id FROM category ORDER BY cat_name";
+						$sql = "SELECT * FROM category ORDER BY cat_name";
 						$params = NULL;
 						
 						$statement = $pdo->prepare($sql);
@@ -108,17 +108,67 @@ if(DEBUG_C)				echo "<h3 class='debugClass'><b>Line  " . __LINE__ .  "</b>: Aufr
 						
 					}
 					
+					
+					/********** Prüfen, ob die eingegebe ****************/
+					/******* Kategorie in DB bereits existiert **********/
+					
+					/** 
+					*
+					*	Sets sta_id in table account to 1
+					*	Sets acc_reghash in table account to "valid"
+					*	Sets acc_regtimestamp in table account to NULL
+					*
+					*	@param 	PDO		DB-Connection Object
+					*
+					*	@return 	Boolean	true if writing was successful, else false
+					*
+					*/
+					
+					
 					public function categoryExists($pdo){
 if(DEBUG_C)				echo "<h3 class='debugClass'><b>Line  " . __LINE__ .  "</b>: Aufruf " . __METHOD__ . "(\$pdo) (<i>" . basename(__FILE__) . "</i>)</h3>";						
 						
-						$sql = "SELECT * FROM category WHERE cat_id = ?";
-						$params = array($this->getCat_id());
+						$sql = "SELECT * FROM category 
+								WHERE 	cat_id = ? 
+								OR 		cat_name = ?";
+						$params = array($this->getCat_id(), $this->getCat_name());
 						
 						$statement = $pdo->prepare($sql);
 						$statement->execute($params) OR DIE( "<p class='debug'>Line <b>" . __LINE__ . "</b>: " . $statement->errorInfo()[2] . " <i>(" . basename(__FILE__) . ")</i></p>" );
 						return $statement->fetchColumn();
 						
 					}
+					
+					
+					/********** Neue Kategorie anlegen *************/
+					
+					/** 
+					*
+					*	Sets sta_id in table account to 1
+					*	Sets acc_reghash in table account to "valid"
+					*	Sets acc_regtimestamp in table account to NULL
+					*
+					*	@param 	PDO		DB-Connection Object
+					*
+					*	@return 	Boolean	true if writing was successful, else false
+					*
+					*/
+					
+					public function saveToDb($pdo){
+if(DEBUG_C)				echo "<h3 class='debugClass'><b>Line  " . __LINE__ .  "</b>: Aufruf " . __METHOD__ . "(\$pdo) (<i>" . basename(__FILE__) . "</i>)</h3>";						
+						$sql = "INSERT INTO category (cat_name)
+								VALUES (?)";
+						$params = array($this->getCat_name());
+						
+						$statement = $pdo->prepare($sql);
+						$statement->execute($params) OR DIE( "<p class='debug'>Line <b>" . __LINE__ . "</b>: " . $statement->errorInfo()[2] . " <i>(" . basename(__FILE__) . ")</i></p>"); 
+				
+						// Last Insert-ID abholen und prüfen:
+						return $newCategoryId = $pdo->lastInsertId();
+						
+					}
+					
+					
 					
 					
 /*******************************************************************************************/				

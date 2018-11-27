@@ -1,34 +1,38 @@
 <?php
-/********************************************************************************************/
+/**********************************************************************************/
 
-			/**
-			*
-			* Entschärft und bereinigt die Whitespaces
-			*
-			* @param 	String 	$inputString 	Der zu entscärfende und bereinigente 
-			* 
-			* @return 	String					Der entschärfte und bereinigte String
-			*
-			*/
 
-			function cleanString($inputString){
+				/**
+				*
+				*	Entschärft und säubert einen String
+				*
+				*	@param String $inputString - Der zu entschärfende und zu bereinigende String
+				*
+				*	@return String - Der entschärfte und bereinigte String
+				*
+				*/
+				function cleanString( $inputString ) {
+if(DEBUG_F)		echo "<p class='debugCleanString'><b>Line " . __LINE__ . ":</b> Aufruf " . __FUNCTION__ . "('$inputString') <i>(" . basename(__FILE__) . ")</i></p>";
+				
+					// trim() entfernt am Anfang und am Ende eines Strings alle 
+					// sog. Whitespaces (Leerzeichen, Tabulatoren, Zeilenumbrüche)
+					$inputString = trim($inputString);
+					
+					// Falls der String bereits kodierte HTML-Snippets enthält, werden 
+					// diese erst einmal zurückgewandelt, um &amp;&gt;-Konstrukte zu vermeiden
+					$inputString = htmlspecialchars_decode($inputString, ENT_QUOTES | ENT_HTML5);
+					
+					// htmlspecialchars() entschärft HTML-Steuerzeichen wie < > & ""
+					// und ersetzt sie durch &lt;, &gt;, &amp;, &apos; &quot;
+					// ENT_QUOTES | ENT_HTML401 ersetzt zusätzlich ' durch &#039;
+					$inputString = htmlspecialchars($inputString, ENT_QUOTES | ENT_HTML5);
+					
+					// bereinigten und entschäften String zurückgeben
+					return $inputString;
+					
+				}
 	
-				
-				// trim() entfernt am Anfang und am Ende eines Strings alle 
-				// sog. Whitespaces (Leerzeichen, Tabulatoren, Zeilenumbrüche)
-				$inputString= trim($inputString);
-				
-				// htmlspecialchars() entschärft HTML-Steuerzeichen wie < > & '' ""
-				// und ersetzt sie durch &lt;, &gt;, &amp;, &apos; &quot;
-				$inputString = htmlspecialchars($inputString);
-if(DEBUG_F)		echo "<p class='debugCleanString'><b>Line  " . __LINE__ .  "</b>: Aufruf " . __FUNCTION__ . "($inputString) <i>(" . basename(__FILE__) . ")</i></p>";					
-				// bereinigten und entschärften String zurückgeben:
-				return $inputString;
-				
-				
-			}
-	
-/********************************************************************************************/	
+
 /********************************************************************************************/	
 
 			/**

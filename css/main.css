@@ -7,8 +7,12 @@
 .error {
 	color: tomato;
 	
-	
 }
+
+.success{
+	color: #669900;
+}
+
 
 
 a:hover{
@@ -223,7 +227,7 @@ footer p{
 
 .new-entry, .new-category{
 	margin-top: 20px;
-	height: 490px;
+	
 
 }
 
@@ -289,7 +293,7 @@ input.button{
 	}
 	
 	.new-entry{
-		height: 500px;
+		
 	}
 
 	.new-category{
