@@ -10,9 +10,9 @@
 				
 				class Category {
 					
-					/************************************/
-					/************* ATTRIBUTES ***********/
-					/************************************/
+				/************************************/
+				/************* ATTRIBUTES ***********/
+				/************************************/
 					
 					private $cat_id;
 					private $cat_name;
@@ -49,7 +49,7 @@ if(DEBUG_C)				echo "</pre>";
 					/********** GETTER & SETTER **********/
 					/*************************************/
 					
-				/****************** cat_id *******************/
+					/************** cat_id ****************/
 				
 					public function getCat_id(){
 						return $this->cat_id;
@@ -59,7 +59,7 @@ if(DEBUG_C)				echo "</pre>";
 						$this->cat_id = cleanString($cat_id);
 					}
 					
-				/****************** cat_name *****************/
+					/*************** cat_name **************/
 				
 					public function getCat_name(){
 						return $this->cat_name;
@@ -76,16 +76,18 @@ if(DEBUG_C)				echo "</pre>";
 					/************** METHODEN **************/
 					/**************************************/
 					
+					/*****************************************************/
 					/********** Alle Kategorien aus DB auslesen **********/
+					/*****************************************************/
+					
 					/** 
-					*
-					*	Sets sta_id in table account to 1
-					*	Sets acc_reghash in table account to "valid"
-					*	Sets acc_regtimestamp in table account to NULL
+					*	Statische Methode.
+					*	Holt alle Category-Object-Daten aus DB
+					*	Schreibt alle Daten aus Datensatz in entscprechende Objekte
 					*
 					*	@param 	PDO		DB-Connection Object
 					*
-					*	@return 	Boolean	true if writing was successful, else false
+					*	@return 		Array (assotiatives) mit Category-Objekte.
 					*
 					*/
 					
@@ -108,19 +110,18 @@ if(DEBUG_C)				echo "<h3 class='debugClass'><b>Line  " . __LINE__ .  "</b>: Aufr
 						
 					}
 					
-					
+					/****************************************************/
 					/********** Prüfen, ob die eingegebe ****************/
 					/******* Kategorie in DB bereits existiert **********/
+					/****************************************************/
 					
 					/** 
 					*
-					*	Sets sta_id in table account to 1
-					*	Sets acc_reghash in table account to "valid"
-					*	Sets acc_regtimestamp in table account to NULL
+					*	Prüft, ob die eingegebe cat_name bereits existiert in DB
 					*
 					*	@param 	PDO		DB-Connection Object
 					*
-					*	@return 	Boolean	true if writing was successful, else false
+					*	@return 		Int 	Die Summe von gefundener Datensätze
 					*
 					*/
 					
@@ -139,18 +140,17 @@ if(DEBUG_C)				echo "<h3 class='debugClass'><b>Line  " . __LINE__ .  "</b>: Aufr
 						
 					}
 					
-					
+					/***********************************************/
 					/********** Neue Kategorie anlegen *************/
+					/***********************************************/
 					
 					/** 
 					*
-					*	Sets sta_id in table account to 1
-					*	Sets acc_reghash in table account to "valid"
-					*	Sets acc_regtimestamp in table account to NULL
-					*
+					*	Speichert neues Category-Objekt in DB
+					*						
 					*	@param 	PDO		DB-Connection Object
 					*
-					*	@return 	Boolean	true if writing was successful, else false
+					*	@return 		Int 	ID des gespeicherten Datensatzes
 					*
 					*/
 					

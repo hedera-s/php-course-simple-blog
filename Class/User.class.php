@@ -7,27 +7,25 @@
 				/************* CLASS USER **************/
 				/***************************************/
 				
-				// Represents User
 				
 				class User {
 					
-					/*******************************/
-					/********** ATTRIBUTES *********/
-					/*******************************/
-					private $usr_email;
-					private $usr_password;
+				/***************************************/
+				/*************** ATTRIBUTES ************/
+				/***************************************/
 					private $usr_id;
 					private $usr_firstname;
 					private $usr_lastname;
+					private $usr_email;
 					private $usr_city;
-					
+					private $usr_password;
 					
 					
 /*******************************************************************************************/	
 
-					/*********************************/
-					/********** KONSTRUKTOR **********/
-					/*********************************/
+					/***************************************/
+					/************* KONSTRUKTOR *************/
+					/***************************************/
 					
 					public function __construct(
 												$usr_email 		= NULL, 
@@ -45,11 +43,7 @@ if(DEBUG_C)				echo "<h3 class='debugClass'><b>Line  " . __LINE__ .  "</b>: Aufr
 						if($usr_firstname) 		$this->setUsr_firstname($usr_firstname);
 						if($usr_lastname)		$this->setUsr_lastname($usr_lastname);
 						if($usr_city) 			$this->setUsr_city($usr_city);
-						
-								
-						
-						
-						
+
 if(DEBUG_C)				echo "<pre class='debugClass'><b>Line  " . __LINE__ .  "</b> <i>(" . basename(__FILE__) . ")</i>:<br>";					
 if(DEBUG_C)				print_r($this);					
 if(DEBUG_C)				echo "</pre>";	
@@ -62,7 +56,7 @@ if(DEBUG_C)				echo "</pre>";
 					/********** GETTER & SETTER **********/
 					/*************************************/
 					
-				/****************** usr_id ******************/
+					/*************** usr_id **************/
 				
 					public function getUsr_id(){
 						return $this->usr_id;
@@ -72,7 +66,7 @@ if(DEBUG_C)				echo "</pre>";
 						$this->usr_id = cleanString($usr_id);
 					}
 					
-				/**************** usr_firstname **************/
+					/*********** usr_firstname ***********/
 				
 					public function getUsr_firstname(){
 						return $this->usr_firstname;
@@ -82,7 +76,7 @@ if(DEBUG_C)				echo "</pre>";
 						$this->usr_firstname = cleanString($usr_firstname);
 					}
 					
-				/**************** usr_lastname ***************/
+					/************* usr_lastname ***********/
 				
 					public function getUsr_lastname(){
 						return $this->usr_lastname;
@@ -92,7 +86,7 @@ if(DEBUG_C)				echo "</pre>";
 						$this->usr_lastname = cleanString($usr_lastname);
 					}
 					
-				/******************* usr_email ****************/
+					/*************** usr_email *************/
 					
 					public function getUsr_email(){
 						return $this->usr_email;
@@ -103,7 +97,7 @@ if(DEBUG_C)				echo "</pre>";
 					}
 					
 					
-				/****************** usr_city ******************/
+					/************** usr_city ***************/
 				
 					public function getUsr_city(){
 						return $this->usr_city;
@@ -113,7 +107,7 @@ if(DEBUG_C)				echo "</pre>";
 						$this->usr_city = cleanString($usr_city);
 					}
 					
-				/***************** usr_password ***************/
+					/************* usr_password ************/
 				
 					public function getUsr_password(){
 						return $this->usr_password;
@@ -123,7 +117,8 @@ if(DEBUG_C)				echo "</pre>";
 						$this->usr_password = cleanString($usr_password);
 					}
 					
-					/************* virtuelles Attribut Fullname **************/
+					/***** virtuelles Attribut Fullname *****/
+					
 					public function getUsr_Fullname() {
 						return $this->getUsr_firstname() . " " . $this->getUsr_lastname();
 					}
@@ -135,16 +130,18 @@ if(DEBUG_C)				echo "</pre>";
 					/************** METHODEN **************/
 					/**************************************/
 					
-					/********** Datensätze aus DB auslesen **********/
+					/************************************************/
+					/********** Datensatz aus DB auslesen ***********/
+					/************************************************/
+					
 					/** 
 					*
-					*	Fetches user object data from DB
-					*	Writes all object data into related objects
+					*	Holt User-Object-Daten aus DB
+					*	Schreibt alle Daten aus Datensatz in ein entscprechenden Object
 					*	
-					*
 					*	@param 		PDO		DB-Connection Object
 					*
-					*	@return 	Boolean	true if dataset was found, else false
+					*	@return 	Boolean	true, wenn der Datensatz geliefert wurde, ansonsten false
 					*
 					*/
 					
@@ -173,9 +170,10 @@ if(DEBUG_C)				echo "<h3 class='debugClass'><b>Line  " . __LINE__ .  "</b>: Aufr
 							$this->setUsr_email($row['usr_email']);
 							$this->setUsr_city($row['usr_city']);
 							$this->setUsr_password($row['usr_password']);
-if(DEBUG_C)				echo "<pre class='debugClass'><b>Line  " . __LINE__ .  "</b> <i>(" . basename(__FILE__) . ")</i>:<br>";					
-if(DEBUG_C)				print_r($this);					
-if(DEBUG_C)				echo "</pre>";							
+							
+if(DEBUG_C)					echo "<pre class='debugClass'><b>Line  " . __LINE__ .  "</b> <i>(" . basename(__FILE__) . ")</i>:<br>";					
+if(DEBUG_C)					print_r($this);					
+if(DEBUG_C)					echo "</pre>";							
 							
 							return true;
 						}

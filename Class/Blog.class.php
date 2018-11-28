@@ -7,13 +7,13 @@
 				/************* CLASS BLOG **************/
 				/***************************************/
 				
-				// Represents blog-entries
+				// Representiert Blog-Einträge
 				
 				class Blog {
 					
-					/*******************************/
-					/********** ATTRIBUTES *********/
-					/*******************************/
+				/**************************************/
+				/************ ATTRIBUTES **************/
+				/**************************************/
 					
 					private $blog_id;
 					private $blog_headline;
@@ -27,9 +27,9 @@
 					
 /*******************************************************************************************/	
 
-					/*********************************/
-					/********** KONSTRUKTOR **********/
-					/*********************************/
+				/**************************************/
+				/************ KONSTRUKTOR *************/
+				/**************************************/
 					
 					public function __construct(
 												
@@ -44,17 +44,16 @@
 												){
 if(DEBUG_C)				echo "<h3 class='debugClass'><b>Line  " . __LINE__ .  "</b>: Aufruf " . __METHOD__ . "()  (<i>" . basename(__FILE__) . "</i>)</h3>";						
 						// Setter nur aufrufen, wenn der jeweilige Parameter einen gültigen Wert enthält
-						if($blog_id) 			$this->setBlog_id($blog_id);
+						
 						if($blog_headline) 		$this->setBlog_headline($blog_headline);
-						if($blog_image)			$this->setBlog_image($blog_image);
 						if($blog_imageAlignment)$this->setBlog_imageAlignment($blog_imageAlignment);
 						if($blog_content) 		$this->setBlog_content($blog_content);
-						if($blog_date) 			$this->setBlog_date($blog_date);
+						
 						if($category) 			$this->setCategory($category);
 						if($user) 				$this->setUser($user);
-								
-						
-						
+						if($blog_image)			$this->setBlog_image($blog_image);
+						if($blog_id) 			$this->setBlog_id($blog_id);		
+						if($blog_date) 			$this->setBlog_date($blog_date);
 						
 if(DEBUG_C)				echo "<pre class='debugClass'><b>Line  " . __LINE__ .  "</b> <i>(" . basename(__FILE__) . ")</i>:<br>";					
 if(DEBUG_C)				print_r($this);					
@@ -68,7 +67,7 @@ if(DEBUG_C)				echo "</pre>";
 					/********** GETTER & SETTER **********/
 					/*************************************/
 					
-				/***************** blog_id ******************/
+					/************** blog_id **************/
 				
 					public function getBlog_id(){
 						return $this->blog_id;
@@ -78,7 +77,7 @@ if(DEBUG_C)				echo "</pre>";
 						$this->blog_id = cleanString($blog_id);
 					}
 					
-				/**************** blog_headline **************/
+					/************* blog_headline **********/
 				
 					public function getBlog_headline(){
 						return $this->blog_headline;
@@ -88,7 +87,7 @@ if(DEBUG_C)				echo "</pre>";
 						$this->blog_headline = cleanString($blog_headline);
 					}
 					
-				/****************** blog_image ***************/
+					/*************** blog_image ************/
 				
 					public function getBlog_image(){
 						return $this->blog_image;
@@ -98,7 +97,7 @@ if(DEBUG_C)				echo "</pre>";
 						$this->blog_image = cleanString($blog_image);
 					}
 					
-				/************ blog_imageAlignment ************/
+					/********* blog_imageAlignment *********/
 					
 					public function getBlog_imageAlignment(){
 						return $this->blog_imageAlignment;
@@ -109,20 +108,19 @@ if(DEBUG_C)				echo "</pre>";
 					}
 					
 					
-				/*************** blog_content ****************/
+					/************ blog_content ************/
 				
 					public function getBlog_content(){
-					//	$content = str_replace("\r\n", "<br>", $this->blog_content);
-					//return $content;
-						
-						return $this->blog_content;
+
+						return str_replace("&lt;br&gt;", "<br>", $this->blog_content);
 					}
 					
 					public function setBlog_content($blog_content){
-						$this->blog_content = cleanString($blog_content);
+						$blog_content = cleanString($blog_content);
+						$this->blog_content = str_replace("\r\n", "<br>", $blog_content);
 					}
 					
-				/****************** blog_date ****************/
+					/*************** blog_date *************/
 				
 					public function getBlog_date(){
 						return $this->blog_date;
@@ -132,7 +130,7 @@ if(DEBUG_C)				echo "</pre>";
 						$this->blog_date = cleanString($blog_date);
 					}
 					
-				/******************* category ****************/
+					/**************** category *************/
 				
 					public function getCategory(){
 						return $this->category;
@@ -146,7 +144,7 @@ if(DEBUG_C)					echo "<p class='debug err'>Line <b>" . __LINE__ . "</b>: FEHLER:
 						}
 					}
 					
-				/******************** user *******************/
+					/***************** user ****************/
 				
 					public function getUser(){
 						return $this->user;
@@ -165,12 +163,29 @@ if(DEBUG_C)					echo "<p class='debug err'>Line <b>" . __LINE__ . "</b>: FEHLER:
 					
 /*******************************************************************************************/	
 									
-					/**************************************/
-					/************** METHODEN **************/
-					/**************************************/
+					/***************************************/
+					/************** METHODEN ***************/
+					/***************************************/
 					
-				/******* STATISCHE METHODE ZUM AUSLESEN ********/
-				/************ ALLER BEITRÄGE AUS DB ************/
+					
+					/********** STATISCHE METHODE **********/
+					/************ ZUM AUSLESEN *************/
+					/******* ALLER BEITRÄGE AUS DB *********/
+					
+					/** 
+					*
+					*	Holt Alle Blog-Datensätze aus DB
+					*	Schreibt alle Daten aus Datensatz in ein entscprechenden Object,
+					*	Speichert alle Blog-Objekte in ein Array
+					*	Das aufrufende Blog-Objekt muss die User- und Category-Objekte enthälten
+					*	
+					*	@param 		PDO		DB-Connection Object
+					*	@param	[	Int		$categoryToShow	]	ID der Kategorie, die angezeigt werden soll 
+					*	
+					*	@return 	Array	Assoziatives Array mit Blog-Objekte
+					*
+					*/
+					
 				
 					public static function fetchFromDb($pdo, $categoryToShow = NULL){
 if(DEBUG_C)				echo "<h3 class='debugClass'><b>Line  " . __LINE__ .  "</b>: Aufruf " . __METHOD__ . "(\$pdo, $categoryToShow) (<i>" . basename(__FILE__) . "</i>)</h3>";							
@@ -188,8 +203,7 @@ if(DEBUG_C)				echo "<h3 class='debugClass'><b>Line  " . __LINE__ .  "</b>: Aufr
 						$entriesArray = NULL;
 						while($row = $statement->fetch(PDO::FETCH_ASSOC)){
 						
-						// Je Datensatz ein Objekt erstellen und in Array speichern:
-
+							// Je Datensatz ein Objekt erstellen und in Array speichern:
 							$entriesArray[] =  new Blog	(	$row['blog_headline'],
 															$row['blog_imageAlignment'],
 															$row['blog_content'],
@@ -209,20 +223,28 @@ if(DEBUG_C)				echo "<h3 class='debugClass'><b>Line  " . __LINE__ .  "</b>: Aufr
 															$row['blog_image'],
 															$row['blog_id'],
 															$row['blog_date']
-															
-														
-							
-							);
-							
+									
+														);
 						}
 						
 						 return $entriesArray;
 					}
 						
-						
-				/*************************************************/
-				/********* Neuer Beitrag in DB speichern *********/
-				/*************************************************/
+					
+					
+					/***************************************/
+					/**** Neuer Beitrag in DB speichern ****/
+					/***************************************/
+					
+					/** 
+					*
+					*	Speichert einen neuen Beitrag-Objekt in DB
+					*
+					*	@param 		PDO		DB-Connection Object
+					*
+					*	@return 	Int		ID des letzten gespeicherten Objekts, wenn Fehler, 0
+					*
+					*/
 				
 					public function saveToDb($pdo){
 if(DEBUG_C)				echo "<h3 class='debugClass'><b>Line  " . __LINE__ .  "</b>: Aufruf " . __METHOD__ . "() (<i>" . basename(__FILE__) . "</i>)</h3>";					
@@ -248,14 +270,7 @@ if(DEBUG_C)				echo "<h3 class='debugClass'><b>Line  " . __LINE__ .  "</b>: Aufr
 						
 					}
 					
-				//
-				public function getContentWithBr(){
-					return str_replace("\r\n", "<br>", $this->getBlog_content());
-				}
 					
-					
-					
-				
 				
 				
 				
